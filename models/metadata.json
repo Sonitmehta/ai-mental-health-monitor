@@ -1,0 +1,17 @@
+{
+  "max_len": 45,
+  "vocab_size": 697,
+  "feature_dim": 250,
+  "risk_classes": [
+    "high",
+    "low",
+    "medium"
+  ],
+  "emotion_classes": [
+    "anxious",
+    "neutral",
+    "positive",
+    "sad"
+  ],
+  "sample_count": 176
+}

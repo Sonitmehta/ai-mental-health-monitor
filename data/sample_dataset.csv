@@ -1,0 +1,177 @@
+text,emotion,risk
+"I had a really productive day and enjoyed studying with my friends in the library",positive,low
+"I feel calm and relaxed after finishing my assignments on time today",positive,low
+"I am excited about my upcoming college project and feel confident about the presentation",positive,low
+"Today was a pleasant day and I went for a nice walk in the evening",positive,low
+"I am looking forward to the weekend to spend time on my painting hobby",positive,low
+"I feel peaceful and content with how my week has gone so far",positive,low
+"I enjoyed having lunch with my classmates and laughing together",positive,low
+"Everything went smoothly in my classes today and I feel accomplished",positive,low
+"I feel grateful for the support of my family and close mentors",positive,low
+"I managed to get eight hours of good sleep and feel refreshed",positive,low
+"I am enjoying learning new programming concepts and building small apps",positive,low
+"I had a great conversation with a friend and it brightened my mood",positive,low
+"I feel energized and ready to tackle the tasks scheduled for this week",positive,low
+"I felt satisfied after finishing my weekly workout routine",positive,low
+"I had an insightful discussion with my professor regarding the project",positive,low
+"I feel hopeful about the coming semester and my career goals",positive,low
+"I had an enjoyable time working in the college garden with volunteers",positive,low
+"I feel calm and grounded after doing a fifteen minute meditation",positive,low
+"I am pleased with my exam results and feel rewarded for my hard work",positive,low
+"My group members contributed well to the assignment today",positive,low
+"I spent some quality time calling my parents and checking in on them",positive,low
+"I feel confident about my abilities to handle the current semester load",positive,low
+"I had a good discussion with my study group and we cleared our doubts",positive,low
+"I have a steady routine going and things feel under control",positive,low
+"I feel cheerful after attending a college cultural workshop today",positive,low
+"I enjoyed working on the hackathon problem statement with my peers",positive,low
+"I feel motivated to improve my fitness and started running in the morning",positive,low
+"I managed to resolve a tricky bug in my code and felt quite happy",positive,low
+"I feel relaxed knowing I completed my submissions before the deadline",positive,low
+"I am in a cheerful mood and enjoyed catching up with old friends",positive,low
+"I feel optimistic and eager to participate in tomorrow's college fest",positive,low
+"I enjoyed cooking a healthy dinner and sharing it with my roommates",positive,low
+"I woke up feeling refreshed and ready for a brand new day",positive,low
+"I am feeling blessed and appreciate the little things in my daily life",positive,low
+"I had a fun evening playing badminton with my college batchmates",positive,low
+"I feel peaceful sitting by the college lake and watching the sunset",positive,low
+"I am enthusiastic about joining the college robotics club",positive,low
+"I feel proud of the progress I have made in my semester subjects",positive,low
+"I had a great time celebrating my friend's birthday today",positive,low
+"I am feeling content, happy, and balanced in my personal life",positive,low
+"Today was normal and routine with nothing particularly stressful happening",neutral,low
+"I attended all my lectures today and completed the lab exercises as usual",neutral,low
+"I had a standard college day and spent some time reading notes",neutral,low
+"My schedule was average today and I did ordinary household chores",neutral,low
+"I feel okay today and I am keeping steady progress with my coursework",neutral,low
+"I worked on some revision notes and watched a movie in the evening",neutral,low
+"Things are pretty balanced right now and college work is manageable",neutral,low
+"I did some grocery shopping and organized my study desk today",neutral,low
+"Just an ordinary weekday with typical lectures and commute",neutral,low
+"I feel neutral today, neither overly excited nor particularly stressed",neutral,low
+"I am taking things one step at a time and managing my daily schedule",neutral,low
+"I cooked a meal today and rested for a couple of hours in the afternoon",neutral,low
+"Nothing out of the ordinary occurred today, just standard coursework",neutral,low
+"I spent a quiet evening listening to music and preparing for tomorrow",neutral,low
+"I spent the afternoon reading a novel in the college cafeteria",neutral,low
+"The lectures today were informative and I took detailed notes",neutral,low
+"I feel stable and balanced throughout my daily activities",neutral,low
+"I had a mild conversation with a colleague about the upcoming seminar",neutral,low
+"I spent some time reviewing past exam papers and feel adequately prepared",neutral,low
+"I attended the seminar today and found the subject reasonably interesting",neutral,low
+"I returned my library books and picked up study material for next week",neutral,low
+"I spent the afternoon doing regular laundry and tidying up my room",neutral,low
+"A regular day at college with ordinary classes and standard lab assignments",neutral,low
+"I took my regular bus route and arrived on time for my morning class",neutral,low
+"I am sitting in the reading hall and reviewing regular lecture slides",neutral,low
+"I feel a bit anxious about the upcoming semester exams next week",anxious,medium
+"I have been feeling stressed about my final semester project deadlines",anxious,medium
+"I find myself constantly worrying whether I will clear the placement interviews",anxious,medium
+"My mind keeps racing before going to bed and it is hard to fall asleep",anxious,medium
+"I feel nervous every time the professor calls my name in class",anxious,medium
+"I am overwhelmed by the number of assignments due this coming Monday",anxious,medium
+"I feel tense and my shoulders ache from sitting and worrying about tests",anxious,medium
+"I have been feeling uneasy about group presentations and speaking in public",anxious,medium
+"I get sudden spikes of panic whenever I check the pending assignment list",anxious,medium
+"I feel restless and unable to sit quietly without stressing over grades",anxious,medium
+"I am worried that I cannot balance my coursework and internship preparation",anxious,medium
+"I feel irritable and snappy when people ask me about my studies",anxious,medium
+"I have a constant knot in my stomach whenever I enter the college campus",anxious,medium
+"I feel like time is slipping away and I am constantly rushing under pressure",anxious,medium
+"I am anxious about my financial budget and living expenses this month",anxious,medium
+"I am having difficulty focusing on my reading because of anxious thoughts",anxious,medium
+"I worry about disappointing my parents with my academic performance",anxious,medium
+"I feel nervous about submitting my thesis draft to the faculty committee",anxious,medium
+"I feel self-conscious and insecure when interacting with new batchmates",anxious,medium
+"I have been having frequent tension headaches due to academic stress",anxious,medium
+"I find myself overthinking simple social interactions for hours afterward",anxious,medium
+"I am stressed about managing multiple lab records and viva preparations",anxious,medium
+"I feel anxious about an upcoming viva voce and my heart beats fast",anxious,medium
+"I have been waking up with a sense of dread about the daily schedule",anxious,medium
+"I feel like everyone is judging me during practical lab sessions",anxious,medium
+"I get nervous and start sweating when presenting in front of the classroom",anxious,medium
+"I am scared that I will forget everything during the written examination",anxious,medium
+"My anxiety makes it hard to breathe normally when deadlines get close",anxious,medium
+"I feel on edge all the time and jump at sudden noises or unexpected questions",anxious,medium
+"I keep double checking all my submitted files out of fear and anxiety",anxious,medium
+"I felt bad today because I struggled with my assignments and got stressed",anxious,medium
+"I have been feeling really bad about my recent test performance and cannot focus",anxious,medium
+"I feel worried and bad about the future and do not know what step to take next",anxious,medium
+"I have been feeling lonely in the hostel and missing my family back home",sad,medium
+"I feel down today and do not have much energy to talk to anyone",sad,medium
+"I have lost interest in my usual video games and hobbies this past week",sad,medium
+"I feel a bit discouraged after receiving lower marks on my midterm exam",sad,medium
+"I have been feeling fatigued and find it hard to get out of bed in the morning",sad,medium
+"I feel disconnected from my peers lately and find socializing exhausting",sad,medium
+"I have been struggling to concentrate during lectures due to low mood",sad,medium
+"I feel sad because things have not been turning out as I had planned",sad,medium
+"I have been skipping meals because I lack appetite and feel gloomy",sad,medium
+"I feel like I am falling behind everyone else in my class",sad,medium
+"I feel emotionally drained after dealing with constant academic pressure",sad,medium
+"I feel left out when I see my classmates hanging out without me",sad,medium
+"I have been brooding over past mistakes and feeling remorseful",sad,medium
+"I feel gloomy when looking at future career prospects right now",sad,medium
+"I feel a sense of emptiness after finishing long study hours alone",sad,medium
+"I have been feeling sluggish and unmotivated to attend morning classes",sad,medium
+"I feel disappointed with my progress on the competitive coding platform",sad,medium
+"I feel weary and wish I could take a break from all college obligations",sad,medium
+"I feel a lingering sense of melancholy that I cannot easily explain",sad,medium
+"I feel uninspired and find it difficult to write even a single paragraph",sad,medium
+"I am sad that I do not have close friends in this college batch",sad,medium
+"I feel gloomy and shed tears in private when nobody is around",sad,medium
+"I lack enthusiasm for any college events and prefer staying in my room",sad,medium
+"I feel disheartened because my hard work did not reflect in my grade sheet",sad,medium
+"I have been feeling emotionally numb and indifferent towards my studies",sad,medium
+"I felt bad today and spent the afternoon crying in my room feeling upset",sad,medium
+"I am feeling very down and sad about how things are going in my life",sad,medium
+"I feel completely overwhelmed and unable to cope with my daily academic life",anxious,high
+"I feel persistently distressed and deeply disconnected from everything around me",sad,high
+"I am exhausted, utterly isolated, and nothing brings me joy or relief anymore",sad,high
+"I have lost all motivation to live my daily life and feel profound hopelessness",sad,high
+"I cannot function properly, cannot sleep, and feel trapped in severe despair",sad,high
+"I experience intense panic attacks multiple times a day and feel out of control",anxious,high
+"I feel suffocated by severe anxiety and feel like something catastrophic will happen",anxious,high
+"I feel like an unbearable burden to my family and everyone around me",sad,high
+"I have completely stopped attending classes because I cannot face anyone at all",sad,high
+"I feel completely numb, empty inside, and have no energy to survive another day",sad,high
+"I am struggling with overwhelming mental pain that never seems to go away",sad,high
+"I feel extreme dread every waking second and my chest feels constantly tight",anxious,high
+"I feel completely detached from reality and cannot find a reason to keep trying",sad,high
+"I feel paralyzed by terror and cannot leave my hostel room for days",anxious,high
+"I feel like giving up on everything because there is no light at the end of the tunnel",sad,high
+"I am crying uncontrollably every night and feel utterly helpless and broken",sad,high
+"I feel acute mental agony and have totally lost the will to take care of myself",sad,high
+"I feel like a total failure in life and see absolutely no future for myself",sad,high
+"The anxiety is unbearable and I am trembling and hyperventilating frequently",anxious,high
+"I feel completely abandoned, hopeless, and unable to endure this suffering",sad,high
+"I feel like I am drowning under constant dark thoughts and no one understands",sad,high
+"I have shut off my phone and isolated myself completely from the world",sad,high
+"I feel so overwhelmed that simple tasks like eating or getting up feel impossible",sad,high
+"I experience crippling anxiety that makes me feel like I cannot breathe at all",anxious,high
+"I feel completely drained of life and trapped in profound misery",sad,high
+"I feel that nothing will ever get better and my life is entirely ruined",sad,high
+"I am experiencing severe emotional breakdown and cannot stop shaking with fear",anxious,high
+"I feel consumed by darkness and have no strength left to fight this pain",sad,high
+"I feel totally alienated from people and lost in endless emotional anguish",sad,high
+"I am struggling to survive each hour and feel completely crushed by despair",sad,high
+"I feel intense terror and severe heart palpitations when thinking about tomorrow",anxious,high
+"I have completely lost my appetite, sleep, and desire to exist in this state",sad,high
+"I feel that I am ruined beyond repair and everything is crumbling around me",sad,high
+"I am experiencing constant panic and feel completely detached from my body",anxious,high
+"I feel an overwhelming sense of doom and cannot find any peace of mind",anxious,high
+"I feel utterly worthless and see no purpose in continuing my studies or life",sad,high
+"I am terrified of losing my mind completely from this relentless stress",anxious,high
+"I feel crushed under the weight of severe depression and cannot get off the floor",sad,high
+"I feel trapped in an endless nightmare of severe fear and isolation",anxious,high
+"I am in unbearable emotional distress and desperately need help to survive",sad,high
+"I feel suffocated by darkness and have completely lost my will to continue",sad,high
+"I am having recurring severe panic attacks that leave me gasping for air",anxious,high
+"I feel entirely broken beyond help and live in constant fear and agony",sad,high
+"I cannot stop weeping from sheer emotional agony and feel utterly hopeless",sad,high
+"I feel so completely overwhelmed by distress that I cannot think or function",anxious,high
+"I felt very bad today, I was crying at a time too and I don't know what to do, I think I'm a failure",sad,high
+"I feel like a complete failure in college and keep crying alone in my room",sad,high
+"I felt really bad today and broke down crying because I cannot handle anything anymore",sad,high
+"I feel totally hopeless, crying constantly, and feeling like an absolute failure",sad,high
+"I am crying every day, feel so bad inside, and think I am failing at everything in life",sad,high
+"I feel like a failure, hate myself, and cannot stop crying from mental pain",sad,high
