@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% set active_page = "screening" %}
+
+{% block title %}Screening — MindScan AI{% endblock %}
+{% block meta_desc %}Real-time mental health evaluation using neural feature extraction and NLP indicator analysis{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container-sm">
+
+  <!-- Header -->
+  <div class="mb-3 animate-fade">
+    <div class="section-label" data-i18n="screening_badge">Interactive Assessment</div>
+    <h1 style="font-size:2rem;" data-i18n="screening_title">Mental Health Self-Check</h1>
+    <p class="mt-1" data-i18n="screening_desc">
+      Type or paste your daily thoughts, reflections, or how you feel. The AI analyzes emotional sentiment, distress biomarkers, and risk levels in real time.
+    </p>
+  </div>
+
+  <!-- Screening Input Card -->
+  <div class="card mb-3 animate-slide delay-1">
+    <div class="form-group">
+      <div class="flex items-center justify-between mb-1">
+        <label class="form-label" for="journalInput" data-i18n="journal_label">Your Reflections / Thoughts:</label>
+        <span id="charCount" class="text-xs text-muted">0 characters</span>
+      </div>
+      <textarea
+        id="journalInput"
+        class="form-textarea"
+        placeholder="Write what's on your mind today... (e.g., 'I felt completely exhausted today and felt like crying because everything feels overwhelming.')"
+      ></textarea>
+    </div>
+
+    <!-- Sample quick prompts -->
+    <div class="mt-2">
+      <span class="text-xs text-muted" style="display:block; margin-bottom: 6px;" data-i18n="sample_prompts_label">💡 Quick Test Prompts:</span>
+      <div class="sample-chips">
+        <button type="button" class="sample-chip" data-sample="I had a really productive day and enjoyed hanging out with my friends in the evening!">✨ Positive & Calm</button>
+        <button type="button" class="sample-chip" data-sample="I have an upcoming exam and I'm stressed about failing, struggling to sleep properly.">⚠️ Exam Anxiety</button>
+        <button type="button" class="sample-chip" data-sample="i felt very bad today, i was crying at a time too and i don't know what to do, i think i'm a failure">🚨 Severe Distress</button>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between mt-3">
+      <button type="button" id="clearBtn" class="btn btn-ghost btn-sm" data-i18n="clear_btn">Clear</button>
+      <button type="button" id="analyzeBtn" class="btn btn-primary">
+        <span id="btnText" data-i18n="analyze_btn">Analyze Sentiment</span>
+        <span id="btnSpinner" class="spinner hidden"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Crisis Alert Box (Hidden unless triggered) -->
+  <div id="crisisAlert" class="crisis-box mb-3">
+    <div class="flex items-center gap-1">
+      <span style="font-size:1.2rem;">🆘</span>
+      <span class="crisis-title" data-i18n="crisis_title">Support & Immediate Care Notice</span>
+    </div>
+    <p style="color:var(--text-1); font-size:0.875rem;" data-i18n="crisis_desc">
+      If you or someone you know is going through intense emotional pain, please know that you are not alone. Free, confidential support is available 24/7.
+    </p>
+    <div class="mt-2 flex gap-2" style="flex-wrap:wrap;">
+      <a href="tel:9152987821" class="crisis-link">📞 KIRAN Helpline (India): 1800-599-0019</a>
+      <a href="tel:988" class="crisis-link">🌐 Global Suicide & Crisis Lifeline: 988</a>
+    </div>
+  </div>
+
+  <!-- Results Section -->
+  <div id="result-section" class="card mb-4">
+    <div class="section-label" data-i18n="analysis_results_title">Screening Results</div>
+    
+    <div class="result-grid mt-2">
+      <!-- Risk Score Gauge -->
+      <div class="card card-sm">
+        <span class="text-xs text-muted" data-i18n="risk_score_label">Overall Risk Score</span>
+        <div class="risk-gauge-wrap mt-1">
+          <div id="scoreDisplay" class="risk-score-num">--</div>
+          <div>
+            <div id="riskBadge" class="badge badge-low">Low Risk</div>
+            <p id="riskSummary" class="text-xs mt-1 text-muted">Awaiting evaluation</p>
+          </div>
+        </div>
+        <div class="progress-bar mt-2">
+          <div id="scoreProgress" class="progress-fill" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <!-- Emotion Detection Card -->
+      <div class="card card-sm">
+        <span class="text-xs text-muted" data-i18n="detected_emotion_label">Primary Detected State</span>
+        <div class="mt-1 flex items-center gap-2">
+          <span id="emotionIcon" style="font-size:2.2rem;">🧘</span>
+          <div>
+            <h3 id="emotionLabel" style="text-transform: capitalize;">--</h3>
+            <span class="text-xs text-muted" data-i18n="classified_by">Dual-head CNN Output</span>
+          </div>
+        </div>
+        <div class="mt-2">
+          <span class="text-xs text-muted" data-i18n="nlp_markers_label">Extracted Clinical Biomarkers:</span>
+          <div id="indicatorPills" class="indicator-list">
+            <span class="indicator-pill indicator-pos">None</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Probability Distributions -->
+    <div class="mt-3 card card-sm">
+      <span class="text-xs text-muted mb-2" style="display:block;" data-i18n="prob_dist_label">Neural Network Output Distributions (Softmax)</span>
+      <div style="height: 220px;">
+        <canvas id="probChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Re-check Action -->
+    <div class="flex justify-between items-center mt-3">
+      <span class="text-xs text-muted" data-i18n="disclaimer_note">⚠️ Educational tool. Not a substitute for professional diagnosis.</span>
+      <a href="/history" class="btn btn-outline btn-sm" data-i18n="view_in_history_btn">View in History & Trends →</a>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/screening.js"></script>
+{% endblock %}

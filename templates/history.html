@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% set active_page = "history" %}
+
+{% block title %}History & Trends — MindScan AI{% endblock %}
+{% block meta_desc %}Longitudinal mental health monitoring timeline and emotional risk tracking analytics{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-3 animate-fade" style="flex-wrap:wrap; gap:1rem;">
+    <div>
+      <div class="section-label" data-i18n="history_badge">Longitudinal Analytics</div>
+      <h1 style="font-size:2rem;" data-i18n="history_title">Session History & Trends</h1>
+      <p class="mt-1" data-i18n="history_desc">Track mental wellbeing variations and risk score trajectories across screening interactions.</p>
+    </div>
+    <div class="flex gap-2">
+      <button type="button" id="exportBtn" class="btn btn-outline btn-sm">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span data-i18n="export_csv">Export CSV</span>
+      </button>
+      <button type="button" id="clearHistoryBtn" class="btn btn-danger btn-sm" data-i18n="clear_history">Clear History</button>
+    </div>
+  </div>
+
+  <!-- Summary Tiles -->
+  <div class="stat-grid mb-3 animate-slide delay-1">
+    <div class="stat-tile">
+      <div id="statTotalSessions" class="stat-value text-accent">0</div>
+      <div class="stat-label" data-i18n="stat_total_sessions">Total Screenings</div>
+      <div class="stat-sub">Lifetime logged entries</div>
+    </div>
+    <div class="stat-tile">
+      <div id="statAvgScore" class="stat-value" style="color:var(--indigo);">--</div>
+      <div class="stat-label" data-i18n="stat_avg_score">Average Risk Score</div>
+      <div class="stat-sub">Mean across all records</div>
+    </div>
+    <div class="stat-tile">
+      <div id="statPeakScore" class="stat-value" style="color:var(--risk-med);">--</div>
+      <div class="stat-label" data-i18n="stat_peak_score">Peak Risk Recorded</div>
+      <div class="stat-sub">Maximum distress index</div>
+    </div>
+  </div>
+
+  <!-- Trend Timeline Chart -->
+  <div class="card mb-3 animate-slide delay-2">
+    <div class="flex items-center justify-between mb-2">
+      <div>
+        <div class="section-label" data-i18n="trend_chart_badge">Telemetry Curve</div>
+        <h3 data-i18n="trend_chart_title">Risk Score Progression</h3>
+      </div>
+      <span class="text-xs text-muted">Range: 0 (Optimal) to 100 (Severe)</span>
+    </div>
+    <div style="height: 280px; position:relative;">
+      <canvas id="historyChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Detailed Table Card -->
+  <div class="card animate-slide delay-3">
+    <div class="section-label" data-i18n="logs_badge">Audit Log</div>
+    <h3 class="mb-2" data-i18n="logs_title">Screening Entry Records</h3>
+
+    <div style="overflow-x:auto;">
+      <table class="data-table" id="historyTable">
+        <thead>
+          <tr>
+            <th data-i18n="th_id">ID</th>
+            <th data-i18n="th_timestamp">Timestamp</th>
+            <th data-i18n="th_text">Journal Excerpt</th>
+            <th data-i18n="th_emotion">Emotion</th>
+            <th data-i18n="th_risk">Risk Level</th>
+            <th data-i18n="th_score">Score</th>
+          </tr>
+        </thead>
+        <tbody id="historyTableBody">
+          <tr>
+            <td colspan="6" style="text-align:center; padding: 2rem; color:var(--text-3);" data-i18n="no_records">
+              No screening sessions recorded yet. Complete a check-in on the screening page!
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/history.js"></script>
+{% endblock %}

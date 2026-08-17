@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — MindScan AI</title>
+  <meta name="description" content="Sign in to your MindScan AI account"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+
+<!-- Ambient background blobs -->
+<div style="position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0;">
+  <div style="position:absolute;top:-20%;left:-10%;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(20,184,166,0.07) 0%,transparent 70%);"></div>
+  <div style="position:absolute;bottom:-20%;right:-10%;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(129,140,248,0.06) 0%,transparent 70%);"></div>
+</div>
+
+<div class="login-page" style="position:relative;z-index:1;">
+  <div class="login-card">
+
+    <!-- Logo -->
+    <div class="login-logo">
+      <span class="login-logo-dot"></span>
+      <span style="font-size:1.1rem;font-weight:800;color:var(--text-1);">MindScan AI</span>
+    </div>
+
+    <h2 style="font-size:1.5rem;">Welcome back</h2>
+    <p class="login-subtitle">Sign in to access your mental health dashboard</p>
+
+    <!-- Error message -->
+    <div class="login-error" id="loginError">Incorrect credentials. Please try again.</div>
+
+    <!-- Form -->
+    <form class="login-form" id="loginForm" onsubmit="return false;">
+      <div class="form-group">
+        <label class="form-label" for="username">Username / Email</label>
+        <input class="form-input" type="text" id="username" placeholder="student  or  admin@mhm.ai" autocomplete="username" required/>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <div style="position:relative;">
+          <input class="form-input" type="password" id="password" placeholder="••••••••" autocomplete="current-password" required style="padding-right:2.8rem;"/>
+          <button type="button" id="togglePwd" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-3);" aria-label="Toggle password">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-lg w-full" id="loginBtn" type="submit">
+        <span id="loginBtnText">Sign In</span>
+        <span id="loginBtnSpinner" class="spinner hidden"></span>
+      </button>
+    </form>
+
+    <!-- Demo hint -->
+    <div class="login-hint">
+      🔑 Demo credentials:<br/>
+      Username: <strong>student</strong> &nbsp;|&nbsp; Password: <strong>mhm2024</strong>
+    </div>
+
+    <!-- Language row -->
+    <div style="display:flex;justify-content:center;gap:8px;margin-top:1.5rem;">
+      <button class="lang-btn active" data-lang="en" style="border:1px solid var(--border);border-radius:6px;">EN</button>
+      <button class="lang-btn" data-lang="hi" style="border:1px solid var(--border);border-radius:6px;">HI</button>
+      <button class="lang-btn" data-lang="hl" style="border:1px solid var(--border);border-radius:6px;">HL</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="/static/js/main.js"></script>
+<script>
+/* ── Login logic ─────────────────────────────────────────────── */
+const TRANSLATIONS = {
+  en: { heading: 'Welcome back', subtitle: 'Sign in to access your mental health dashboard',
+        btn: 'Sign In', error: 'Incorrect credentials. Please try again.' },
+  hi: { heading: 'वापस आपका स्वागत है', subtitle: 'अपने मानसिक स्वास्थ्य डैशबोर्ड तक पहुंचें',
+        btn: 'साइन इन करें', error: 'गलत क्रेडेंशियल। कृपया पुनः प्रयास करें।' },
+  hl: { heading: 'Wapas swagat hai!', subtitle: 'Apne mental health dashboard mein jaayein',
+        btn: 'Sign In Karo', error: 'Galat credentials. Phir se try karo.' },
+};
+
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const lang = btn.dataset.lang;
+    localStorage.setItem('mhm_lang', lang);
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const t = TRANSLATIONS[lang];
+    document.querySelector('h2').textContent = t.heading;
+    document.querySelector('.login-subtitle').textContent = t.subtitle;
+    document.getElementById('loginBtnText').textContent = t.btn;
+    document.getElementById('loginError').textContent = t.error;
+  });
+});
+
+// Restore language
+const savedLang = localStorage.getItem('mhm_lang') || 'en';
+document.querySelectorAll('.lang-btn').forEach(b => {
+  b.classList.toggle('active', b.dataset.lang === savedLang);
+});
+if (savedLang !== 'en') {
+  const t = TRANSLATIONS[savedLang];
+  document.querySelector('h2').textContent = t.heading;
+  document.querySelector('.login-subtitle').textContent = t.subtitle;
+  document.getElementById('loginBtnText').textContent = t.btn;
+}
+
+// Toggle password visibility
+document.getElementById('togglePwd').addEventListener('click', () => {
+  const inp = document.getElementById('password');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+});
+
+// Form submit
+document.getElementById('loginForm').addEventListener('submit', async () => {
+  const btn      = document.getElementById('loginBtn');
+  const btnText  = document.getElementById('loginBtnText');
+  const spinner  = document.getElementById('loginBtnSpinner');
+  const errorEl  = document.getElementById('loginError');
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+
+  btn.disabled = true; btnText.classList.add('hidden'); spinner.classList.remove('hidden');
+  errorEl.classList.remove('visible');
+
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ username, password })
+    });
+    if (res.ok) {
+      window.location.href = '/';
+    } else {
+      errorEl.classList.add('visible');
+      btn.disabled = false; btnText.classList.remove('hidden'); spinner.classList.add('hidden');
+    }
+  } catch {
+    errorEl.classList.add('visible');
+    btn.disabled = false; btnText.classList.remove('hidden'); spinner.classList.add('hidden');
+  }
+});
+
+// Enter key
+document.getElementById('password').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+});
+</script>
+</body>
+</html>

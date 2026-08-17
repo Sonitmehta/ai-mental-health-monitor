@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}MindScan AI{% endblock %}</title>
+  <meta name="description" content="{% block meta_desc %}AI-powered mental health monitoring using PyTorch CNN and GAN augmentation{% endblock %}"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+<!-- ─── Navbar ─────────────────────────────────────────────── -->
+<nav class="navbar" id="navbar">
+  <a class="nav-brand" href="/">
+    <span class="nav-brand-dot"></span>
+    <span data-i18n="brand">MindScan AI</span>
+  </a>
+
+  <div class="nav-links" id="nav-links">
+    <a class="nav-link {% if active_page == 'home' %}active{% endif %}" href="/" data-i18n="nav_home">Dashboard</a>
+    <a class="nav-link {% if active_page == 'screening' %}active{% endif %}" href="/screening" data-i18n="nav_screening">Screening</a>
+    <a class="nav-link {% if active_page == 'history' %}active{% endif %}" href="/history" data-i18n="nav_history">History</a>
+    <a class="nav-link {% if active_page == 'about' %}active{% endif %}" href="/about" data-i18n="nav_about">About Model</a>
+  </div>
+
+  <div class="nav-right">
+    <!-- Language switcher -->
+    <div class="lang-switcher" id="langSwitcher">
+      <button class="lang-btn active" data-lang="en">EN</button>
+      <button class="lang-btn" data-lang="hi">HI</button>
+      <button class="lang-btn" data-lang="hl">HL</button>
+    </div>
+
+    {% if user %}
+    <!-- User chip -->
+    <div class="user-chip">
+      <div class="user-avatar" id="userAvatar">{{ user.sub[0]|upper }}</div>
+      <span id="userLabel">{{ user.sub }}</span>
+    </div>
+    <button class="btn-logout" onclick="window.location='/logout'" data-i18n="nav_logout">Logout</button>
+    {% endif %}
+
+    <!-- Mobile toggle -->
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="6"  x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+<!-- ─── Page content ───────────────────────────────────────── -->
+<div class="page-wrapper">
+  {% block content %}{% endblock %}
+</div>
+
+<!-- ─── Toast container ────────────────────────────────────── -->
+<div id="toast-container"></div>
+
+<!-- ─── Main JS ────────────────────────────────────────────── -->
+<script src="/static/js/main.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% set active_page = "home" %}
+
+{% block title %}Dashboard — MindScan AI{% endblock %}
+{% block meta_desc %}AI Mental Health Monitor — Real-time NLP-based mental health risk screening{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <!-- ── Hero ──────────────────────────────────────────────── -->
+  <section class="hero animate-fade">
+    <div class="hero-eyebrow">
+      <span>🧠</span>
+      <span data-i18n="hero_badge">AI-Powered Mental Health Screening</span>
+    </div>
+    <h1>Monitor Your <span>Mental Wellbeing</span><br/>with Deep Learning</h1>
+    <p data-i18n="hero_sub">
+      A multi-modal TextCNN + GAN system that analyses natural language to detect
+      emotional distress and risk levels — built for awareness, not diagnosis.
+    </p>
+    <div class="hero-cta">
+      <a href="/screening" class="btn btn-primary btn-lg" data-i18n="hero_cta1">
+        Start Screening
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="/about" class="btn btn-outline btn-lg" data-i18n="hero_cta2">View Architecture</a>
+    </div>
+  </section>
+
+  <!-- ── Stats ─────────────────────────────────────────────── -->
+  <section class="stat-grid mb-4 animate-slide delay-1">
+    <div class="stat-tile">
+      <div class="stat-value text-accent">{{ metrics.get('cnn_risk_accuracy', '83.3') }}%</div>
+      <div class="stat-label" data-i18n="stat_risk_acc">CNN Risk Accuracy</div>
+      <div class="stat-sub">TextCNN1D on test split</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-value" style="color:var(--indigo)">{{ metrics.get('gan_augmented_f1', '0.811') }}</div>
+      <div class="stat-label" data-i18n="stat_gan_f1">GAN-Augmented F1</div>
+      <div class="stat-sub">vs baseline 0.722</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-value" style="color:var(--risk-med)">176</div>
+      <div class="stat-label" data-i18n="stat_dataset">Training Samples</div>
+      <div class="stat-sub">Balanced across 3 risk levels</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-value" style="color:var(--risk-low)">{{ "✓" if model_loaded else "⚠" }}</div>
+      <div class="stat-label" data-i18n="stat_model">Model Status</div>
+      <div class="stat-sub">{{ "PyTorch model loaded" if model_loaded else "Demo mode active" }}</div>
+    </div>
+  </section>
+
+  <!-- ── Feature cards ─────────────────────────────────────── -->
+  <section class="mb-4 animate-slide delay-2">
+    <div class="section-label" data-i18n="features_label">Core Technologies</div>
+    <h2 class="mb-3" data-i18n="features_heading">What's under the hood</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔤</div>
+        <h3 data-i18n="feat_nlp_title">NLP Pre-processing</h3>
+        <p data-i18n="feat_nlp_desc">Custom tokenizer with clinical distress lexicon, word-boundary regex, and TF-IDF feature extraction across 250 dimensions.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🧬</div>
+        <h3 data-i18n="feat_cnn_title">TextCNN1D</h3>
+        <p data-i18n="feat_cnn_desc">Multi-kernel 1D Convolutional Network with kernel sizes [2,3,4] fused with TF-IDF branch. Dual-head: Risk + Emotion classification.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3 data-i18n="feat_gan_title">GAN Augmentation</h3>
+        <p data-i18n="feat_gan_desc">Feature-space Generator + Discriminator trained on high-risk minority class samples. Boosts rare class recall by 8.9% F1.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3 data-i18n="feat_score_title">Dynamic Risk Score</h3>
+        <p data-i18n="feat_score_desc">Calibrated composite score: P(Low)×15 + P(Medium)×55 + P(High)×92, with clinical override for crisis-keyword detection.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Quick screening CTA ───────────────────────────────── -->
+  <section class="card mb-4 animate-slide delay-3" style="display:grid;grid-template-columns:1fr auto;gap:1.5rem;align-items:center;flex-wrap:wrap;">
+    <div>
+      <div class="section-label" data-i18n="cta_label">Ready to begin?</div>
+      <h3 data-i18n="cta_heading">Run your first mental health check-in</h3>
+      <p class="mt-1" style="font-size:0.875rem;" data-i18n="cta_sub">Write freely about how you're feeling today. Our AI will analyse it privately — no data is stored on servers.</p>
+    </div>
+    <a href="/screening" class="btn btn-primary">
+      <span data-i18n="cta_btn">Open Screening</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </section>
+
+  <!-- ── Model architecture overview ──────────────────────── -->
+  <section class="mb-4 animate-slide delay-4">
+    <div class="section-label" data-i18n="arch_label">Pipeline Overview</div>
+    <h2 class="mb-3" data-i18n="arch_heading">How it works</h2>
+    <div class="card card-sm">
+      <div class="arch-flow">
+        <div class="arch-node accent" data-i18n="arch_1">Text Input</div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-node" data-i18n="arch_2">NLP<br/>Tokenizer</div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-node" data-i18n="arch_3">TF-IDF<br/>+ Seq</div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-node indigo" data-i18n="arch_4">TextCNN1D<br/>Dual-head</div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-node" data-i18n="arch_5">GAN<br/>Calibration</div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-node accent" data-i18n="arch_6">Risk +<br/>Emotion</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/main.js"></script>
+{% endblock %}
