@@ -79,28 +79,34 @@ $$\min_G \max_D V(D, G) = \mathbb{E}_{x \sim p_{\text{data}}(x)}[\log D(x)] + \m
 
 ## 🚀 Execution & Setup
 
-### 1. Environment Initialization
+### 💻 Running in VS Code (Quickest Way)
+1. Open the project folder `AI_Mental_Health_Monitor` in **VS Code**.
+2. Open the integrated terminal (`Ctrl + ~` or `Terminal -> New Terminal`).
+3. Run the following command:
 ```bash
-# Clone the repository
+.venv\Scripts\activate
+python app.py
+```
+4. Open your browser and navigate to **`http://127.0.0.1:8000`**.
+
+---
+
+### 🛠️ Standard Developer Setup from Scratch
+```bash
+# 1. Clone the repository
 git clone https://github.com/Sonitmehta/ai-mental-health-monitor.git
 cd ai-mental-health-monitor
 
-# Create and activate virtual environment
+# 2. Create and activate virtual environment
 python -m venv .venv
 .\.venv\Scripts\activate      # Windows (PowerShell)
 # source .venv/bin/activate   # Linux / macOS
 
-# Install project dependencies
+# 3. Install project dependencies
 pip install -r requirements.txt
-```
 
-### 2. Launching the Web Application
-```bash
-# Option A: Run via standard Python runner
+# 4. Launch web application
 python app.py
-
-# Option B: Run via Uvicorn ASGI server with live reloading
-uvicorn app:app --reload --port 8000
 ```
 Access the application interface at **`http://127.0.0.1:8000`**.
 
