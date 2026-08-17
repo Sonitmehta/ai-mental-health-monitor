@@ -2,120 +2,103 @@
 {% set active_page = "home" %}
 
 {% block title %}Dashboard — MindScan AI{% endblock %}
-{% block meta_desc %}AI Mental Health Monitor — Real-time NLP-based mental health risk screening{% endblock %}
+{% block meta_desc %}AI-powered personal mental health check-in and self-care companion{% endblock %}
 
 {% block content %}
 <div class="container">
 
-  <!-- ── Hero ──────────────────────────────────────────────── -->
-  <section class="hero animate-fade">
-    <div class="hero-eyebrow">
-      <span>🧠</span>
-      <span data-i18n="hero_badge">AI-Powered Mental Health Screening</span>
+  <!-- ── Greeting & Welcome Banner ────────────────────────── -->
+  <div class="card mb-3 animate-fade" style="background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-card-subtle) 100%);">
+    <div class="flex items-center justify-between" style="flex-wrap:wrap; gap:1rem;">
+      <div>
+        <div class="section-label" data-i18n="home_tag">Personal Wellness Hub</div>
+        <h1 style="font-size:1.85rem;">Hello, <span class="text-accent">{{ user.name or user.sub }}</span> 👋</h1>
+        <p class="mt-1" style="max-width:560px;" data-i18n="home_sub">
+          Take a quiet moment to reflect on your day. Our AI is here to help you identify emotional trends and nurture your peace of mind.
+        </p>
+      </div>
+      <div>
+        <a href="/screening" class="btn btn-primary btn-lg" data-i18n="btn_daily_checkin">
+          <span>Start Daily Check-in</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
     </div>
-    <h1>Monitor Your <span>Mental Wellbeing</span><br/>with Deep Learning</h1>
-    <p data-i18n="hero_sub">
-      A multi-modal TextCNN + GAN system that analyses natural language to detect
-      emotional distress and risk levels — built for awareness, not diagnosis.
+  </div>
+
+  <!-- ── Compact Wellness Summary Tiles ────────────────────── -->
+  <div class="stat-grid mb-3 animate-slide">
+    <!-- Last Check-in Status -->
+    <div class="stat-tile">
+      <div class="stat-label" data-i18n="tile_last_status">Latest Emotional State</div>
+      {% if latest_record %}
+        <div class="stat-value text-accent" style="text-transform: capitalize; font-size:1.4rem; margin-top:2px;">
+          {{ latest_record.emotion }}
+        </div>
+        <div class="stat-sub">Risk: <strong style="text-transform:uppercase;">{{ latest_record.risk }}</strong> ({{ latest_record.score }}/100)</div>
+      {% else %}
+        <div class="stat-value text-muted" style="font-size:1.2rem; margin-top:4px;" data-i18n="no_checkin_yet">Not checked in</div>
+        <div class="stat-sub" data-i18n="take_first_checkin">Take your first check-in today</div>
+      {% endif %}
+    </div>
+
+    <!-- Total Screenings -->
+    <div class="stat-tile">
+      <div class="stat-label" data-i18n="tile_total_checkins">Total Screenings</div>
+      <div class="stat-value" style="color:var(--indigo);">{{ total_screenings }}</div>
+      <div class="stat-sub" data-i18n="logged_in_records">Saved in your private history</div>
+    </div>
+
+    <!-- Privacy & Safe Space -->
+    <div class="stat-tile">
+      <div class="stat-label" data-i18n="tile_privacy">Privacy & Confidentiality</div>
+      <div class="stat-value" style="color:var(--risk-low); font-size:1.35rem; margin-top:2px;">100% Private</div>
+      <div class="stat-sub" data-i18n="privacy_desc">Evaluated securely in real-time</div>
+    </div>
+  </div>
+
+  <!-- ── Daily Mindfulness Thought ────────────────────────── -->
+  <div class="card mb-3 animate-slide">
+    <div class="flex items-center gap-2 mb-1">
+      <span style="font-size:1.4rem;">🌱</span>
+      <h3 style="font-size:1.05rem;" data-i18n="tip_heading">Mindfulness Thought for Today</h3>
+    </div>
+    <p style="font-style: italic; color:var(--text-1); margin-bottom: 0.35rem;" data-i18n="daily_quote">
+      "You don't have to control your thoughts. You just have to stop letting them control you."
     </p>
-    <div class="hero-cta">
-      <a href="/screening" class="btn btn-primary btn-lg" data-i18n="hero_cta1">
-        Start Screening
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
-      <a href="/about" class="btn btn-outline btn-lg" data-i18n="hero_cta2">View Architecture</a>
-    </div>
-  </section>
+    <span class="text-xs text-muted" data-i18n="daily_subtip">Tip: When feeling overwhelmed, pause and take three slow, deliberate belly breaths.</span>
+  </div>
 
-  <!-- ── Stats ─────────────────────────────────────────────── -->
-  <section class="stat-grid mb-4 animate-slide delay-1">
-    <div class="stat-tile">
-      <div class="stat-value text-accent">{{ metrics.get('cnn_risk_accuracy', '83.3') }}%</div>
-      <div class="stat-label" data-i18n="stat_risk_acc">CNN Risk Accuracy</div>
-      <div class="stat-sub">TextCNN1D on test split</div>
-    </div>
-    <div class="stat-tile">
-      <div class="stat-value" style="color:var(--indigo)">{{ metrics.get('gan_augmented_f1', '0.811') }}</div>
-      <div class="stat-label" data-i18n="stat_gan_f1">GAN-Augmented F1</div>
-      <div class="stat-sub">vs baseline 0.722</div>
-    </div>
-    <div class="stat-tile">
-      <div class="stat-value" style="color:var(--risk-med)">176</div>
-      <div class="stat-label" data-i18n="stat_dataset">Training Samples</div>
-      <div class="stat-sub">Balanced across 3 risk levels</div>
-    </div>
-    <div class="stat-tile">
-      <div class="stat-value" style="color:var(--risk-low)">{{ "✓" if model_loaded else "⚠" }}</div>
-      <div class="stat-label" data-i18n="stat_model">Model Status</div>
-      <div class="stat-sub">{{ "PyTorch model loaded" if model_loaded else "Demo mode active" }}</div>
-    </div>
-  </section>
+  <!-- ── 3 Simple Steps ────────────────────────────────────── -->
+  <div class="card animate-slide">
+    <div class="section-label" data-i18n="how_it_helps_badge">Simple & Accessible</div>
+    <h3 class="mb-2" data-i18n="how_it_helps_title">How MindScan Supports Your Mental Health</h3>
+    
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin-top: 0.75rem;">
+      <div style="padding:0.75rem; border-radius:var(--radius-sm); background:var(--bg-card-subtle);">
+        <div style="font-size:1.3rem; margin-bottom:4px;">✍️</div>
+        <strong style="font-size:0.88rem; color:var(--text-1);" data-i18n="step1_title">1. Express Freely</strong>
+        <p class="text-xs mt-1 text-muted" data-i18n="step1_desc">Write your thoughts or journal your day in natural conversational language.</p>
+      </div>
 
-  <!-- ── Feature cards ─────────────────────────────────────── -->
-  <section class="mb-4 animate-slide delay-2">
-    <div class="section-label" data-i18n="features_label">Core Technologies</div>
-    <h2 class="mb-3" data-i18n="features_heading">What's under the hood</h2>
-    <div class="feature-grid">
-      <div class="feature-card">
-        <div class="feature-icon">🔤</div>
-        <h3 data-i18n="feat_nlp_title">NLP Pre-processing</h3>
-        <p data-i18n="feat_nlp_desc">Custom tokenizer with clinical distress lexicon, word-boundary regex, and TF-IDF feature extraction across 250 dimensions.</p>
+      <div style="padding:0.75rem; border-radius:var(--radius-sm); background:var(--bg-card-subtle);">
+        <div style="font-size:1.3rem; margin-bottom:4px;">🧠</div>
+        <strong style="font-size:0.88rem; color:var(--text-1);" data-i18n="step2_title">2. Immediate Insight</strong>
+        <p class="text-xs mt-1 text-muted" data-i18n="step2_desc">Our neural network detects subtle stress biomarkers and emotional signals.</p>
       </div>
-      <div class="feature-card">
-        <div class="feature-icon">🧬</div>
-        <h3 data-i18n="feat_cnn_title">TextCNN1D</h3>
-        <p data-i18n="feat_cnn_desc">Multi-kernel 1D Convolutional Network with kernel sizes [2,3,4] fused with TF-IDF branch. Dual-head: Risk + Emotion classification.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">⚡</div>
-        <h3 data-i18n="feat_gan_title">GAN Augmentation</h3>
-        <p data-i18n="feat_gan_desc">Feature-space Generator + Discriminator trained on high-risk minority class samples. Boosts rare class recall by 8.9% F1.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">📊</div>
-        <h3 data-i18n="feat_score_title">Dynamic Risk Score</h3>
-        <p data-i18n="feat_score_desc">Calibrated composite score: P(Low)×15 + P(Medium)×55 + P(High)×92, with clinical override for crisis-keyword detection.</p>
-      </div>
-    </div>
-  </section>
 
-  <!-- ── Quick screening CTA ───────────────────────────────── -->
-  <section class="card mb-4 animate-slide delay-3" style="display:grid;grid-template-columns:1fr auto;gap:1.5rem;align-items:center;flex-wrap:wrap;">
-    <div>
-      <div class="section-label" data-i18n="cta_label">Ready to begin?</div>
-      <h3 data-i18n="cta_heading">Run your first mental health check-in</h3>
-      <p class="mt-1" style="font-size:0.875rem;" data-i18n="cta_sub">Write freely about how you're feeling today. Our AI will analyse it privately — no data is stored on servers.</p>
-    </div>
-    <a href="/screening" class="btn btn-primary">
-      <span data-i18n="cta_btn">Open Screening</span>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-    </a>
-  </section>
-
-  <!-- ── Model architecture overview ──────────────────────── -->
-  <section class="mb-4 animate-slide delay-4">
-    <div class="section-label" data-i18n="arch_label">Pipeline Overview</div>
-    <h2 class="mb-3" data-i18n="arch_heading">How it works</h2>
-    <div class="card card-sm">
-      <div class="arch-flow">
-        <div class="arch-node accent" data-i18n="arch_1">Text Input</div>
-        <div class="arch-arrow">→</div>
-        <div class="arch-node" data-i18n="arch_2">NLP<br/>Tokenizer</div>
-        <div class="arch-arrow">→</div>
-        <div class="arch-node" data-i18n="arch_3">TF-IDF<br/>+ Seq</div>
-        <div class="arch-arrow">→</div>
-        <div class="arch-node indigo" data-i18n="arch_4">TextCNN1D<br/>Dual-head</div>
-        <div class="arch-arrow">→</div>
-        <div class="arch-node" data-i18n="arch_5">GAN<br/>Calibration</div>
-        <div class="arch-arrow">→</div>
-        <div class="arch-node accent" data-i18n="arch_6">Risk +<br/>Emotion</div>
+      <div style="padding:0.75rem; border-radius:var(--radius-sm); background:var(--bg-card-subtle);">
+        <div style="font-size:1.3rem; margin-bottom:4px;">💡</div>
+        <strong style="font-size:0.88rem; color:var(--text-1);" data-i18n="step3_title">3. Actionable Coping</strong>
+        <p class="text-xs mt-1 text-muted" data-i18n="step3_desc">Get tailored relaxation steps, breathing exercises, and verified helpline contacts.</p>
       </div>
     </div>
-  </section>
+
+    <!-- Link to technical view -->
+    <div style="margin-top:1.25rem; padding-top:0.75rem; border-top:1px solid var(--border); text-align:right;">
+      <a href="/about" class="text-xs text-accent" data-i18n="link_view_ai_tech">Looking for technical AI accuracy & deep learning architecture? View Model Blueprint →</a>
+    </div>
+  </div>
 
 </div>
-{% endblock %}
-
-{% block scripts %}
-<script src="/static/js/main.js"></script>
 {% endblock %}

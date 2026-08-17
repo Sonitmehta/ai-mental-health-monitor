@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% set active_page = "screening" %}
 
-{% block title %}Screening — MindScan AI{% endblock %}
-{% block meta_desc %}Real-time mental health evaluation using neural feature extraction and NLP indicator analysis{% endblock %}
+{% block title %}Daily Mental Health Check-In — MindScan AI{% endblock %}
+{% block meta_desc %}Real-time mental health evaluation with personalized coping strategies and verified helpline support{% endblock %}
 
 {% block head %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
@@ -13,24 +13,24 @@
 
   <!-- Header -->
   <div class="mb-3 animate-fade">
-    <div class="section-label" data-i18n="screening_badge">Interactive Assessment</div>
-    <h1 style="font-size:2rem;" data-i18n="screening_title">Mental Health Self-Check</h1>
+    <div class="section-label" data-i18n="screening_badge">Daily Self-Check</div>
+    <h1 style="font-size:1.85rem;" data-i18n="screening_title">How are you feeling today?</h1>
     <p class="mt-1" data-i18n="screening_desc">
-      Type or paste your daily thoughts, reflections, or how you feel. The AI analyzes emotional sentiment, distress biomarkers, and risk levels in real time.
+      Write freely about your day, thoughts, feelings, or stressors. The AI evaluates emotional nuance and provides tailored coping recommendations.
     </p>
   </div>
 
   <!-- Screening Input Card -->
-  <div class="card mb-3 animate-slide delay-1">
+  <div class="card mb-3 animate-slide">
     <div class="form-group">
       <div class="flex items-center justify-between mb-1">
-        <label class="form-label" for="journalInput" data-i18n="journal_label">Your Reflections / Thoughts:</label>
+        <label class="form-label" for="journalInput" data-i18n="journal_label">Your Thoughts & Reflections:</label>
         <span id="charCount" class="text-xs text-muted">0 characters</span>
       </div>
       <textarea
         id="journalInput"
         class="form-textarea"
-        placeholder="Write what's on your mind today... (e.g., 'I felt completely exhausted today and felt like crying because everything feels overwhelming.')"
+        placeholder="How is your mind feeling right now? (e.g. 'I had a stressful day at college and feel tired, but I am trying to relax.')"
       ></textarea>
     </div>
 
@@ -38,44 +38,29 @@
     <div class="mt-2">
       <span class="text-xs text-muted" style="display:block; margin-bottom: 6px;" data-i18n="sample_prompts_label">💡 Quick Test Prompts:</span>
       <div class="sample-chips">
-        <button type="button" class="sample-chip" data-sample="I had a really productive day and enjoyed hanging out with my friends in the evening!">✨ Positive & Calm</button>
-        <button type="button" class="sample-chip" data-sample="I have an upcoming exam and I'm stressed about failing, struggling to sleep properly.">⚠️ Exam Anxiety</button>
-        <button type="button" class="sample-chip" data-sample="i felt very bad today, i was crying at a time too and i don't know what to do, i think i'm a failure">🚨 Severe Distress</button>
+        <button type="button" class="sample-chip" data-sample="I had a really productive day and enjoyed hanging out with my friends in the evening!">✨ Calm & Content</button>
+        <button type="button" class="sample-chip" data-sample="I have an upcoming exam and I'm stressed about failing, struggling to sleep properly.">⚠️ Overworked / Anxious</button>
+        <button type="button" class="sample-chip" data-sample="i felt very bad today, i was crying at a time too and i don't know what to do, i think i'm a failure">🚨 Deep Distress / Breakdown</button>
       </div>
     </div>
 
     <div class="flex items-center justify-between mt-3">
       <button type="button" id="clearBtn" class="btn btn-ghost btn-sm" data-i18n="clear_btn">Clear</button>
       <button type="button" id="analyzeBtn" class="btn btn-primary">
-        <span id="btnText" data-i18n="analyze_btn">Analyze Sentiment</span>
+        <span id="btnText" data-i18n="analyze_btn">Evaluate My Check-In</span>
         <span id="btnSpinner" class="spinner hidden"></span>
       </button>
     </div>
   </div>
 
-  <!-- Crisis Alert Box (Hidden unless triggered) -->
-  <div id="crisisAlert" class="crisis-box mb-3">
-    <div class="flex items-center gap-1">
-      <span style="font-size:1.2rem;">🆘</span>
-      <span class="crisis-title" data-i18n="crisis_title">Support & Immediate Care Notice</span>
-    </div>
-    <p style="color:var(--text-1); font-size:0.875rem;" data-i18n="crisis_desc">
-      If you or someone you know is going through intense emotional pain, please know that you are not alone. Free, confidential support is available 24/7.
-    </p>
-    <div class="mt-2 flex gap-2" style="flex-wrap:wrap;">
-      <a href="tel:9152987821" class="crisis-link">📞 KIRAN Helpline (India): 1800-599-0019</a>
-      <a href="tel:988" class="crisis-link">🌐 Global Suicide & Crisis Lifeline: 988</a>
-    </div>
-  </div>
-
-  <!-- Results Section -->
-  <div id="result-section" class="card mb-4">
-    <div class="section-label" data-i18n="analysis_results_title">Screening Results</div>
+  <!-- ── Results Section ─────────────────────────────────── -->
+  <div id="result-section" class="card mb-4 hidden">
+    <div class="section-label" data-i18n="analysis_results_title">Evaluation Summary</div>
     
     <div class="result-grid mt-2">
       <!-- Risk Score Gauge -->
       <div class="card card-sm">
-        <span class="text-xs text-muted" data-i18n="risk_score_label">Overall Risk Score</span>
+        <span class="text-xs text-muted" data-i18n="risk_score_label">Overall Distress Index</span>
         <div class="risk-gauge-wrap mt-1">
           <div id="scoreDisplay" class="risk-score-num">--</div>
           <div>
@@ -90,16 +75,16 @@
 
       <!-- Emotion Detection Card -->
       <div class="card card-sm">
-        <span class="text-xs text-muted" data-i18n="detected_emotion_label">Primary Detected State</span>
+        <span class="text-xs text-muted" data-i18n="detected_emotion_label">Identified Emotional Tone</span>
         <div class="mt-1 flex items-center gap-2">
-          <span id="emotionIcon" style="font-size:2.2rem;">🧘</span>
+          <span id="emotionIcon" style="font-size:2rem;">🧘</span>
           <div>
             <h3 id="emotionLabel" style="text-transform: capitalize;">--</h3>
-            <span class="text-xs text-muted" data-i18n="classified_by">Dual-head CNN Output</span>
+            <span class="text-xs text-muted">Neural Sentiment Vector</span>
           </div>
         </div>
         <div class="mt-2">
-          <span class="text-xs text-muted" data-i18n="nlp_markers_label">Extracted Clinical Biomarkers:</span>
+          <span class="text-xs text-muted" data-i18n="nlp_markers_label">Distress Markers:</span>
           <div id="indicatorPills" class="indicator-list">
             <span class="indicator-pill indicator-pos">None</span>
           </div>
@@ -107,17 +92,46 @@
       </div>
     </div>
 
-    <!-- Probability Distributions -->
+    <!-- Actionable Clinical Description & Coping Steps -->
+    <div id="guidanceCard" class="guidance-box mt-3">
+      <div class="flex items-center gap-1 mb-1">
+        <span style="font-size:1.2rem;">💡</span>
+        <strong id="guidanceTitle" style="font-size:0.95rem; color:var(--text-1);">What you can do right now</strong>
+      </div>
+      <p id="guidanceSummary" class="text-xs" style="color:var(--text-1); line-height: 1.5; margin-bottom: 0.5rem;"></p>
+      
+      <div id="actionStepsList" style="display:flex; flex-direction:column; gap:4px;">
+        <!-- Injected dynamically -->
+      </div>
+
+      <div class="mt-2" style="font-size:0.78rem; font-style:italic; color:var(--text-2);" id="lifestyleTip"></div>
+    </div>
+
+    <!-- Official Verified Helpline Contacts -->
+    <div id="helplineSection" class="mt-3">
+      <div class="flex items-center justify-between">
+        <span class="text-xs text-muted" style="font-weight:700; text-transform:uppercase; letter-spacing:0.05em;" data-i18n="verified_helplines_label">
+          📞 24/7 Verified Confidential Helplines
+        </span>
+        <span class="badge badge-teal" style="font-size:0.68rem;">Toll-Free & Free Support</span>
+      </div>
+
+      <div class="helpline-grid" id="helplinesList">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+
+    <!-- Softmax Distributions -->
     <div class="mt-3 card card-sm">
-      <span class="text-xs text-muted mb-2" style="display:block;" data-i18n="prob_dist_label">Neural Network Output Distributions (Softmax)</span>
-      <div style="height: 220px;">
+      <span class="text-xs text-muted mb-2" style="display:block;" data-i18n="prob_dist_label">Neural Network Confidence Probabilities</span>
+      <div style="height: 200px;">
         <canvas id="probChart"></canvas>
       </div>
     </div>
 
-    <!-- Re-check Action -->
-    <div class="flex justify-between items-center mt-3">
-      <span class="text-xs text-muted" data-i18n="disclaimer_note">⚠️ Educational tool. Not a substitute for professional diagnosis.</span>
+    <!-- Navigation Footer -->
+    <div class="flex justify-between items-center mt-3" style="flex-wrap:wrap; gap:0.5rem;">
+      <span class="text-xs text-muted" data-i18n="disclaimer_note">⚠️ Educational & awareness tool. Not a clinical replacement for professional diagnosis.</span>
       <a href="/history" class="btn btn-outline btn-sm" data-i18n="view_in_history_btn">View in History & Trends →</a>
     </div>
   </div>

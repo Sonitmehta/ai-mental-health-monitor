@@ -1,6 +1,6 @@
 /**
  * MindScan AI — Screening Page Logic
- * API Fetching, Chart.js Visualizations, Dynamic Indicators, Crisis Triage
+ * API Fetching, Actionable Clinical Steps, Verified Helplines, Chart.js
  */
 
 let probChartInstance = null;
@@ -26,7 +26,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Sample prompt chips
   sampleChips.forEach(chip => {
     chip.addEventListener("click", () => {
       journalInput.value = chip.getAttribute("data-sample");
@@ -35,30 +34,26 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Clear button
   if (clearBtn && journalInput) {
     clearBtn.addEventListener("click", () => {
       journalInput.value = "";
       journalInput.dispatchEvent(new Event("input"));
       const resultSec = document.getElementById("result-section");
-      const crisisSec = document.getElementById("crisisAlert");
-      if (resultSec) resultSec.classList.remove("visible");
-      if (crisisSec) crisisSec.classList.remove("visible");
+      if (resultSec) resultSec.classList.add("hidden");
     });
   }
 
-  // Analyze button
   if (analyzeBtn) {
     analyzeBtn.addEventListener("click", handleScreening);
   }
 });
 
 async function handleScreening() {
-  const inputEl  = document.getElementById("journalInput");
-  const btn      = document.getElementById("analyzeBtn");
-  const btnText  = document.getElementById("btnText");
-  const spinner  = document.getElementById("btnSpinner");
-  const text     = inputEl ? inputEl.value.trim() : "";
+  const inputEl = document.getElementById("journalInput");
+  const btn     = document.getElementById("analyzeBtn");
+  const btnText = document.getElementById("btnText");
+  const spinner = document.getElementById("btnSpinner");
+  const text    = inputEl ? inputEl.value.trim() : "";
 
   if (!text || text.length < 5) {
     showToast("Please enter at least 5 characters to analyze.", "error");
@@ -86,7 +81,7 @@ async function handleScreening() {
 
     const data = await res.json();
     renderResults(data);
-    showToast("Analysis complete!", "success");
+    showToast("Evaluation complete!", "success");
   } catch (err) {
     showToast("Unable to reach inference engine. Please check backend connection.", "error");
   } finally {
@@ -98,7 +93,6 @@ async function handleScreening() {
 
 function renderResults(data) {
   const resultSec    = document.getElementById("result-section");
-  const crisisAlert  = document.getElementById("crisisAlert");
   const scoreDisplay = document.getElementById("scoreDisplay");
   const riskBadge    = document.getElementById("riskBadge");
   const riskSummary  = document.getElementById("riskSummary");
@@ -107,38 +101,33 @@ function renderResults(data) {
   const emotionIcon  = document.getElementById("emotionIcon");
   const pillsWrap    = document.getElementById("indicatorPills");
 
-  // Show result section
-  if (resultSec) resultSec.classList.add("visible");
+  if (resultSec) resultSec.classList.remove("hidden");
 
   const score = data.risk_score;
   scoreDisplay.textContent = score;
+  scoreProgress.style.width = `${score}%`;
 
-  // Classify score presentation
   scoreDisplay.className = "risk-score-num";
   riskBadge.className    = "badge";
-  scoreProgress.style.width = `${score}%`;
 
   if (data.risk === "high" || score >= 70) {
     scoreDisplay.classList.add("risk-score-high");
     riskBadge.classList.add("badge-high");
-    riskBadge.textContent = "High Risk";
-    riskSummary.textContent = "Elevated distress levels indicated. Supportive intervention recommended.";
+    riskBadge.textContent = "High Distress";
+    riskSummary.textContent = "Elevated emotional strain detected. Prioritize self-care and support.";
     scoreProgress.style.background = "var(--risk-high)";
-    if (crisisAlert) crisisAlert.classList.add("visible");
   } else if (data.risk === "medium" || score >= 40) {
     scoreDisplay.classList.add("risk-score-medium");
     riskBadge.classList.add("badge-medium");
-    riskBadge.textContent = "Moderate Risk";
-    riskSummary.textContent = "Mild-to-moderate emotional strain detected. Consider proactive mindfulness.";
+    riskBadge.textContent = "Moderate Strain";
+    riskSummary.textContent = "Mild-to-moderate emotional tension detected. Try relaxation steps.";
     scoreProgress.style.background = "var(--risk-med)";
-    if (crisisAlert) crisisAlert.classList.remove("visible");
   } else {
     scoreDisplay.classList.add("risk-score-low");
     riskBadge.classList.add("badge-low");
-    riskBadge.textContent = "Low Risk";
-    riskSummary.textContent = "Balanced emotional state. No prominent clinical distress markers.";
+    riskBadge.textContent = "Balanced State";
+    riskSummary.textContent = "Healthy psychological balance and positive resilience indicated.";
     scoreProgress.style.background = "var(--risk-low)";
-    if (crisisAlert) crisisAlert.classList.remove("visible");
   }
 
   // Emotion Output
@@ -148,7 +137,6 @@ function renderResults(data) {
   // Indicators / Biomarkers
   pillsWrap.innerHTML = "";
   let hasIndicators = false;
-
   if (data.indicators) {
     const highInd = data.indicators.high_risk || [];
     const medInd  = data.indicators.medium_risk || [];
@@ -182,12 +170,53 @@ function renderResults(data) {
   if (!hasIndicators) {
     const span = document.createElement("span");
     span.className = "indicator-pill indicator-pos";
-    span.textContent = "No specific distress markers triggered";
+    span.textContent = "No adverse distress keywords triggered";
     pillsWrap.appendChild(span);
   }
 
+  // Render Actionable Guidance & Coping steps
+  renderGuidance(data.guidance);
+
   // Render probabilities chart
   renderProbChart(data.probs_risk, data.probs_emotion);
+}
+
+function renderGuidance(guidance) {
+  if (!guidance) return;
+  const box     = document.getElementById("guidanceCard");
+  const titleEl = document.getElementById("guidanceTitle");
+  const sumEl   = document.getElementById("guidanceSummary");
+  const listEl  = document.getElementById("actionStepsList");
+  const tipEl   = document.getElementById("lifestyleTip");
+  const hlList  = document.getElementById("helplinesList");
+
+  box.className = `guidance-box ${guidance.level}`;
+  titleEl.textContent = guidance.title;
+  sumEl.textContent   = guidance.summary;
+  tipEl.textContent   = guidance.lifestyle_tip ? `💡 Tip: ${guidance.lifestyle_tip}` : "";
+
+  // Action steps list
+  listEl.innerHTML = "";
+  (guidance.action_steps || []).forEach(step => {
+    const div = document.createElement("div");
+    div.className = "action-step-item";
+    div.textContent = step;
+    listEl.appendChild(div);
+  });
+
+  // Verified Helplines
+  hlList.innerHTML = "";
+  (guidance.helplines || []).forEach(hl => {
+    const a = document.createElement("a");
+    a.className = "helpline-card";
+    a.href = hl.tel;
+    a.innerHTML = `
+      <span class="helpline-name">${hl.name}</span>
+      <span class="helpline-num">📞 ${hl.number}</span>
+      <span class="helpline-desc">${hl.desc}</span>
+    `;
+    hlList.appendChild(a);
+  });
 }
 
 function renderProbChart(probsRisk, probsEmotion) {
@@ -206,13 +235,13 @@ function renderProbChart(probsRisk, probsEmotion) {
   const data   = [...riskValues, ...emoValues];
 
   const colors = [
-    "rgba(34,197,94,0.75)",  // Low
-    "rgba(245,158,11,0.75)", // Medium
-    "rgba(239,68,68,0.75)",  // High
-    "rgba(20,184,166,0.75)", // Positive
-    "rgba(148,163,184,0.75)",// Neutral
-    "rgba(245,158,11,0.65)", // Anxious
-    "rgba(129,140,248,0.75)" // Sad
+    "rgba(22, 163, 74, 0.75)",  // Low
+    "rgba(217, 119, 6, 0.75)",  // Med
+    "rgba(220, 38, 38, 0.75)",  // High
+    "rgba(13, 148, 136, 0.75)", // Positive
+    "rgba(148, 163, 184, 0.75)",// Neutral
+    "rgba(217, 119, 6, 0.65)",  // Anxious
+    "rgba(99, 102, 241, 0.75)"  // Sad
   ];
 
   if (probChartInstance) {
@@ -227,7 +256,7 @@ function renderProbChart(probsRisk, probsEmotion) {
         label: "Confidence Probability (%)",
         data: data,
         backgroundColor: colors.slice(0, labels.length),
-        borderRadius: 6,
+        borderRadius: 5,
         borderWidth: 0
       }]
     },
@@ -247,12 +276,12 @@ function renderProbChart(probsRisk, probsEmotion) {
         x: {
           min: 0,
           max: 100,
-          grid: { color: "rgba(255,255,255,0.06)" },
-          ticks: { color: "#94A3B8", font: { family: "Inter" } }
+          grid: { color: "rgba(148, 163, 184, 0.15)" },
+          ticks: { color: "#94A3B8", font: { family: "Inter", size: 10 } }
         },
         y: {
           grid: { display: false },
-          ticks: { color: "#F1F5F9", font: { family: "Inter", size: 11 } }
+          ticks: { color: "var(--text-1)", font: { family: "Inter", size: 11, weight: 500 } }
         }
       }
     }
