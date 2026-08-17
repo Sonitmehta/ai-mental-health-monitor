@@ -209,10 +209,9 @@ def run_inference(text: str) -> dict:
 
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
-    # Already logged in? Redirect to dashboard
     if get_current_user(request):
         return RedirectResponse(url="/", status_code=302)
-    return templates.TemplateResponse("login.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="login.html", context={})
 
 @app.get("/logout")
 async def logout():
@@ -226,30 +225,33 @@ async def dashboard(request: Request):
     if not user:
         return RedirectResponse(url="/login", status_code=302)
     metrics = load_eval_metrics()
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "user": user,
-        "metrics": metrics,
-        "model_loaded": MODEL_LOADED,
-    })
+    return templates.TemplateResponse(
+        request=request,
+        name="index.html",
+        context={"user": user, "metrics": metrics, "model_loaded": MODEL_LOADED}
+    )
 
 @app.get("/screening", response_class=HTMLResponse)
 async def screening_page(request: Request):
     user = get_current_user(request)
     if not user:
         return RedirectResponse(url="/login", status_code=302)
-    return templates.TemplateResponse("screening.html", {
-        "request": request, "user": user
-    })
+    return templates.TemplateResponse(
+        request=request,
+        name="screening.html",
+        context={"user": user}
+    )
 
 @app.get("/history", response_class=HTMLResponse)
 async def history_page(request: Request):
     user = get_current_user(request)
     if not user:
         return RedirectResponse(url="/login", status_code=302)
-    return templates.TemplateResponse("history.html", {
-        "request": request, "user": user
-    })
+    return templates.TemplateResponse(
+        request=request,
+        name="history.html",
+        context={"user": user}
+    )
 
 @app.get("/about", response_class=HTMLResponse)
 async def about_page(request: Request):
@@ -257,9 +259,11 @@ async def about_page(request: Request):
     if not user:
         return RedirectResponse(url="/login", status_code=302)
     metrics = load_eval_metrics()
-    return templates.TemplateResponse("about.html", {
-        "request": request, "user": user, "metrics": metrics
-    })
+    return templates.TemplateResponse(
+        request=request,
+        name="about.html",
+        context={"user": user, "metrics": metrics}
+    )
 
 # ─── Auth endpoint ─────────────────────────────────────────────────────────
 
@@ -333,4 +337,5 @@ async def clear_history(request: Request):
 # ─── Run ─────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run(app, host="127.0.0.1", port=8000)
+
