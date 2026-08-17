@@ -1,0 +1,20 @@
+- [x] Review project structure
+- [x] Clean up unnecessary files (removed redundant `.zip` in repo)
+- [x] Update requirements.txt (FastAPI, uvicorn, jinja2, python-multipart, python-jose)
+- [x] Create Procfile for Render/Railway deployment
+- [x] Update .gitignore (ignore zip, cache, venv)
+- [x] Write app.py (FastAPI backend + JWT Auth + PyTorch TextCNN inference)
+- [x] Create templates/base.html (Sticky navbar, language toggle, user chip)
+- [x] Create templates/login.html (JWT Login with demo credentials, password toggle)
+- [x] Create templates/index.html (Dashboard with stats, features, pipeline flow)
+- [x] Create templates/screening.html (Live assessment, crisis alert, indicators, Chart.js)
+- [x] Create templates/history.html (Session audit table, Chart.js time series, CSV export)
+- [x] Create templates/about.html (Architecture blueprint, GAN loss curve, Viva Q&A)
+- [x] Create static/css/style.css (Modern deep navy dark mode, teal accents, glassmorphism)
+- [x] Create static/js/main.js (Multilingual translations EN/HI/HL, toast system)
+- [x] Create static/js/screening.js (Async fetch to `/api/predict`, dynamic gauges)
+- [x] Create static/js/history.js (Dynamic history rendering, line chart, CSV download)
+- [x] Create static/js/about.js (GAN loss chart, interactive FAQ accordions)
+- [x] Test FastAPI server & PyTorch TextCNN inference
+- [x] Update academic README.md
+- [x] Commit and push to GitHub repository (Sonitmehta/ai-mental-health-monitor)
