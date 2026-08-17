@@ -8,7 +8,50 @@ let ganChartInstance = null;
 document.addEventListener("DOMContentLoaded", () => {
   setupAccordion();
   loadMetricsAndRenderCharts();
+  setupRetrainButton();
 });
+
+function setupRetrainButton() {
+  const btn = document.getElementById("btnTriggerRetrain");
+  const txt = document.getElementById("txtRetrain");
+  const spin= document.getElementById("spinRetrain");
+  const stat= document.getElementById("retrainStatus");
+
+  if (!btn) return;
+
+  btn.addEventListener("click", async () => {
+    if (!confirm("Start continuous retraining pipeline? This will train the CNN & GAN and hot-reload updated weights.")) {
+      return;
+    }
+
+    btn.disabled = true;
+    txt.classList.add("hidden");
+    spin.classList.remove("hidden");
+    stat.classList.remove("hidden");
+    stat.textContent = "⏳ Retraining neural network and GAN on newest data... (takes ~15-20s)";
+
+    try {
+      const res = await fetch("/api/retrain", { method: "POST" });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        stat.textContent = "✅ Model retrained and hot-reloaded successfully with latest weights!";
+        showToast("Model weights upgraded successfully!", "success");
+        loadMetricsAndRenderCharts();
+      } else {
+        stat.textContent = "❌ Retraining error: " + (data.detail || "Failed");
+        showToast("Retraining failed", "error");
+      }
+    } catch {
+      stat.textContent = "❌ Retraining network error.";
+      showToast("Network error", "error");
+    } finally {
+      btn.disabled = false;
+      txt.classList.remove("hidden");
+      spin.classList.add("hidden");
+    }
+  });
+}
+
 
 function setupAccordion() {
   const items = document.querySelectorAll(".accordion-item");

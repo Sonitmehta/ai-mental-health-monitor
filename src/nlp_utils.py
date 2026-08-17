@@ -4,13 +4,14 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 STOP_WORDS = {
-    "the", "a", "an", "and", "or", "but", "is", "am", "are", "was", "were", "be",
-    "to", "of", "in", "on", "for", "with", "my", "i", "it", "this", "that", "have",
-    "has", "had", "been", "very", "today", "about", "from", "as", "at", "by", "so"
+    "the", "a", "an", "and", "or", "is", "am", "are", "was", "were", "be",
+    "to", "of", "in", "on", "for", "with", "it", "this", "that",
+    "about", "from", "as", "at", "by"
 }
 
-# Comprehensive Clinical Distress & Risk Lexicon
+# Comprehensive Clinical Distress, Somatic Pain & Hinglish Lexicon
 HIGH_RISK_INDICATORS = [
+    # Severe Emotional Breakdown & Despair (English)
     "crying", "cry", "failure", "fail", "failed", "failing", "hopeless", "hopelessness",
     "worthless", "exhausted", "isolated", "nothing brings", "despair", "cannot function",
     "panic attacks", "panic attack", "unbearable", "cannot face", "numb", "empty inside",
@@ -18,30 +19,54 @@ HIGH_RISK_INDICATORS = [
     "hyperventilating", "abandoned", "drowning", "impossible", "crippling", "drained of life",
     "breakdown", "darkness", "anguish", "doom", "losing my mind", "nightmare", "desperately",
     "hate myself", "hate my life", "broken inside", "cannot go on", "miserable", "ruined",
-    "suffocated", "crying alone", "weeping", "suicidal", "die", "dying"
+    "suffocated", "crying alone", "weeping", "suicidal", "die", "dying", "self harm",
+
+    # Severe Distress & Somatic Agony (Hinglish / Hindi)
+    "marne ka mann", "mar jana chahta", "mar jana chahti", "himmat haar gaya", "himmat haar gayi",
+    "kuch theek nahi hoga", "koi fayda nahi", "rona aa rha", "ro raha hu", "ro rahi hu",
+    "jeene ka mann nahi", "sab khatam", "zindagi bekar hai", "bardasht nahi ho raha",
+    "unbearable pain", "bohot dard ho rha", "bhot dard"
 ]
 
 MEDIUM_RISK_INDICATORS = [
+    # Mild/Moderate Psychological Strain (English)
     "bad", "felt bad", "feeling bad", "worried", "worry", "worrying", "stress", "stressed",
     "stressful", "anxious", "anxiety", "deadlines", "deadline", "racing", "nervous",
     "overwhelmed", "tense", "uneasy", "panic", "restless", "lonely", "loneliness", "down",
     "lost interest", "discouraged", "fatigued", "fatigue", "disconnected", "skipping meals",
     "falling behind", "irritable", "drained", "left out", "gloomy", "headaches", "headache",
     "overthinking", "weary", "melancholy", "dread", "scared", "fear", "insecure", "struggling",
-    "struggle", "confused", "lost", "frustrated", "frustrating", "pressure", "exhausting"
+    "struggle", "confused", "lost", "frustrated", "frustrating", "pressure", "exhausting",
+    "insomnia", "sleepless",
+
+    # Somatic Distress & Physical Pain Biomarkers
+    "hurting", "hurt", "hurts", "pain", "in so much pain", "aching", "ache", "body ache",
+    "spine", "shoulder", "neck pain", "back pain", "chest tightness", "migraine", "severe headache",
+
+    # Mild/Moderate Distress & Somatic Pain (Hinglish / Hindi)
+    "dard", "dard ho rha", "dard ho raha hai", "headache ho rha", "sir dard", "sar dard",
+    "pareshan", "pareshaan", "pareshani", "bhot kuch", "bohot kuch", "thak gaya", "thak gayi",
+    "thakan", "ghabrahat", "bechain", "bechaini", "chinta", "tension", "tension ho rahi",
+    "neend nahi aa rahi", "dil ghabra raha", "kuch samajh nahi aa raha", "akelapan",
+    "akela feel", "udaas", "udaasi", "darr lag raha", "man udas hai"
 ]
 
 POSITIVE_INDICATORS = [
+    # Positive & Grounded (English)
     "good", "great", "productive", "enjoyed", "enjoy", "enjoying", "calm", "relaxed", "relax",
     "excited", "exciting", "confident", "confidence", "pleasant", "peaceful", "content",
     "laughing", "laughter", "accomplished", "grateful", "gratitude", "refreshed", "energized",
     "hopeful", "grounded", "pleased", "cheerful", "motivated", "motivation", "happy", "happiness",
-    "proud", "optimistic", "blessed", "enthusiastic", "wonderful", "satisfied", "fine", "better"
+    "proud", "optimistic", "blessed", "enthusiastic", "wonderful", "satisfied", "fine", "better",
+
+    # Positive (Hinglish / Hindi)
+    "accha", "achha lag raha", "bohot accha", "mast", "badhiya", "khush", "khushi",
+    "sukoon", "shanti", "maza aaya", "sahi lag raha", "energized feel"
 ]
 
 
 def clean_text(text: str) -> str:
-    """Preprocess text: lowercasing, special character removal, and stopword filtering."""
+    """Preprocess text: lowercasing, special character normalization, and tokenizing."""
     if not isinstance(text, str):
         text = str(text)
     text = text.lower()
@@ -98,30 +123,52 @@ class SimpleTokenizer:
 
 
 def build_vectorizer(texts: List[str], max_features: int = 250) -> Tuple[TfidfVectorizer, np.ndarray]:
-    """Extract TF-IDF representation used for GAN feature augmentation and feature modeling."""
-    vectorizer = TfidfVectorizer(
-        max_features=max_features,
-        ngram_range=(1, 2),
-        min_df=1
-    )
-    X = vectorizer.fit_transform([clean_text(t) for t in texts])
-    return vectorizer, X.toarray()
+    """Fit a TF-IDF vectorizer over preprocessed text inputs."""
+    cleaned_texts = [clean_text(t) for t in texts]
+    vectorizer = TfidfVectorizer(max_features=max_features, ngram_range=(1, 2))
+    features = vectorizer.fit_transform(cleaned_texts).toarray().astype(np.float32)
+    return vectorizer, features
 
 
 def extract_indicators(text: str) -> Dict[str, Any]:
-    """Explainability & Clinical Lexicon detection utility for prominent emotional and risk cues."""
-    t = text.lower()
-    high_hits = [w for w in HIGH_RISK_INDICATORS if re.search(r"\b" + re.escape(w) + r"\b", t)]
-    med_hits = [w for w in MEDIUM_RISK_INDICATORS if re.search(r"\b" + re.escape(w) + r"\b", t)]
-    pos_hits = [w for w in POSITIVE_INDICATORS if re.search(r"\b" + re.escape(w) + r"\b", t)]
+    """
+    Scans natural language input against clinical, somatic pain,
+    and Hinglish distress lexicons using word-boundary regex.
+    """
+    if not isinstance(text, str):
+        text = str(text)
 
-    all_hits = list(dict.fromkeys(high_hits + med_hits + pos_hits))
+    text_lower = text.lower()
+
+    found_high = []
+    found_med = []
+    found_pos = []
+
+    for ind in HIGH_RISK_INDICATORS:
+        pattern = r"\b" + re.escape(ind) + r"\b"
+        if re.search(pattern, text_lower):
+            found_high.append(ind)
+
+    for ind in MEDIUM_RISK_INDICATORS:
+        pattern = r"\b" + re.escape(ind) + r"\b"
+        if re.search(pattern, text_lower):
+            # Avoid duplicate if part of high risk
+            if not any(ind in h for h in found_high):
+                found_med.append(ind)
+
+    for ind in POSITIVE_INDICATORS:
+        pattern = r"\b" + re.escape(ind) + r"\b"
+        if re.search(pattern, text_lower):
+            found_pos.append(ind)
+
+    all_found = list(set(found_high + found_med + found_pos))
+
     return {
-        "high": high_hits,
-        "medium": med_hits,
-        "positive": pos_hits,
-        "all_indicators": all_hits,
-        "high_count": len(high_hits),
-        "medium_count": len(med_hits),
-        "positive_count": len(pos_hits)
+        "high_risk": found_high,
+        "medium_risk": found_med,
+        "positive": found_pos,
+        "all_indicators": all_found,
+        "high_count": len(found_high),
+        "medium_count": len(found_med),
+        "positive_count": len(found_pos)
     }

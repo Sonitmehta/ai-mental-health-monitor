@@ -532,7 +532,27 @@ async def clear_history(request: Request):
     _save_user_history(hist_db)
     return JSONResponse({"success": True})
 
+@app.post("/api/retrain")
+async def retrain_pipeline(request: Request):
+    user = get_current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    try:
+        import subprocess, sys
+        # Run training pipeline
+        subprocess.run([sys.executable, str(BASE_DIR / "train_model.py")], check=True)
+        # Reload updated model into memory
+        global _eval_metrics
+        _eval_metrics = None
+        loaded = load_model()
+        metrics = load_eval_metrics()
+        return JSONResponse({"success": True, "model_reloaded": loaded, "metrics": metrics})
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Retraining failed: {str(exc)}")
+
 # ─── Run ─────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="127.0.0.1", port=8000)
+

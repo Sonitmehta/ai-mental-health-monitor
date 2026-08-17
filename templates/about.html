@@ -101,8 +101,29 @@
     </div>
   </div>
 
+  <!-- Continuous Learning Pipeline Card -->
+  <div class="card mb-3 animate-slide delay-3">
+    <div class="flex items-center justify-between" style="flex-wrap:wrap; gap:1rem;">
+      <div>
+        <div class="section-label" data-i18n="cont_learn_badge">Continuous Learning & Active Retraining</div>
+        <h3 data-i18n="cont_learn_title">Self-Learning & Neural Weight Updating Pipeline</h3>
+        <p class="text-xs text-muted mt-1" style="max-width:580px;" data-i18n="cont_learn_desc">
+          When new clinical data or user feedback is accumulated, trigger this pipeline to re-synthesize GAN latent vectors and update TextCNN1D weights on the fly with zero server downtime.
+        </p>
+      </div>
+      <div>
+        <button type="button" id="btnTriggerRetrain" class="btn btn-primary btn-sm">
+          <span id="txtRetrain" data-i18n="btn_retrain">🔄 Retrain & Upgrade Model</span>
+          <span id="spinRetrain" class="spinner hidden"></span>
+        </button>
+      </div>
+    </div>
+    <div id="retrainStatus" class="mt-2 text-xs text-accent hidden"></div>
+  </div>
+
   <!-- Viva Defense FAQ Accordion -->
   <div class="card animate-slide delay-4">
+
     <div class="section-label" data-i18n="viva_badge">Academic Examination Guide</div>
     <h3 class="mb-3" data-i18n="viva_title">Frequently Asked Viva Defense Questions</h3>
 

@@ -1,6 +1,6 @@
 {
   "max_len": 45,
-  "vocab_size": 697,
+  "vocab_size": 769,
   "feature_dim": 250,
   "risk_classes": [
     "high",
@@ -13,5 +13,5 @@
     "positive",
     "sad"
   ],
-  "sample_count": 176
+  "sample_count": 188
 }
