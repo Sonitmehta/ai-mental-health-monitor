@@ -221,7 +221,10 @@ async def logout():
     return response
 
 @app.get("/", response_class=HTMLResponse)
-async def dashboard(request: Request, user: dict = Depends(require_auth)):
+async def dashboard(request: Request):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=302)
     metrics = load_eval_metrics()
     return templates.TemplateResponse("index.html", {
         "request": request,
@@ -231,19 +234,28 @@ async def dashboard(request: Request, user: dict = Depends(require_auth)):
     })
 
 @app.get("/screening", response_class=HTMLResponse)
-async def screening_page(request: Request, user: dict = Depends(require_auth)):
+async def screening_page(request: Request):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=302)
     return templates.TemplateResponse("screening.html", {
         "request": request, "user": user
     })
 
 @app.get("/history", response_class=HTMLResponse)
-async def history_page(request: Request, user: dict = Depends(require_auth)):
+async def history_page(request: Request):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=302)
     return templates.TemplateResponse("history.html", {
         "request": request, "user": user
     })
 
 @app.get("/about", response_class=HTMLResponse)
-async def about_page(request: Request, user: dict = Depends(require_auth)):
+async def about_page(request: Request):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=302)
     metrics = load_eval_metrics()
     return templates.TemplateResponse("about.html", {
         "request": request, "user": user, "metrics": metrics
