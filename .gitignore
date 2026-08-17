@@ -5,3 +5,6 @@ __pycache__/
 .DS_Store
 *.zip
 .streamlit/
+data/users.json
+data/user_history.json
+.env
