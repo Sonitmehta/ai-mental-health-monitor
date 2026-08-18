@@ -35,7 +35,7 @@ HISTORY_FILE= DATA_DIR / "user_history.json"
 
 SECRET_KEY  = "mhm-secret-key-2024-ai-mental-health"
 ALGORITHM   = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 365  # 1 Year permanent session on device
 
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -46,22 +46,8 @@ def _hash_pwd(pwd: str) -> str:
 
 def _load_users() -> dict:
     if not USERS_FILE.exists():
-        default_users = {
-            "student": {
-                "name": "Demo Student",
-                "email": "student@mhm.ai",
-                "password_hash": _hash_pwd("mhm2024"),
-                "created_at": datetime.now(timezone.utc).isoformat()
-            },
-            "admin@mhm.ai": {
-                "name": "Project Lead",
-                "email": "admin@mhm.ai",
-                "password_hash": _hash_pwd("mhm2024"),
-                "created_at": datetime.now(timezone.utc).isoformat()
-            }
-        }
-        USERS_FILE.write_text(json.dumps(default_users, indent=2), encoding="utf-8")
-        return default_users
+        USERS_FILE.write_text(json.dumps({}, indent=2), encoding="utf-8")
+        return {}
     try:
         return json.loads(USERS_FILE.read_text(encoding="utf-8"))
     except Exception:
@@ -410,11 +396,7 @@ async def api_login(body: LoginRequest):
                 break
     
     if not user_record or user_record.get("password_hash") != _hash_pwd(body.password):
-        # Demo fallback for college demo ease
-        if (key in ["student", "admin@mhm.ai"]) and body.password == "mhm2024":
-            pass
-        else:
-            raise HTTPException(status_code=401, detail="Invalid username or password")
+        raise HTTPException(status_code=401, detail="Invalid username or password")
 
     user_name = user_record.get("name", key) if user_record else key
     token = create_token({"sub": key, "name": user_name})
