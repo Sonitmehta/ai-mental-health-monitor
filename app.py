@@ -45,13 +45,25 @@ def _hash_pwd(pwd: str) -> str:
     return hashlib.sha256(pwd.encode("utf-8")).hexdigest()
 
 def _load_users() -> dict:
+    default_student = {
+        "student": {
+            "name": "Student",
+            "email": "student@mhm.ai",
+            "password_hash": _hash_pwd("mhm2024"),
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+    }
     if not USERS_FILE.exists():
-        USERS_FILE.write_text(json.dumps({}, indent=2), encoding="utf-8")
-        return {}
+        USERS_FILE.write_text(json.dumps(default_student, indent=2), encoding="utf-8")
+        return default_student
     try:
-        return json.loads(USERS_FILE.read_text(encoding="utf-8"))
+        users = json.loads(USERS_FILE.read_text(encoding="utf-8"))
+        if "student" not in users:
+            users["student"] = default_student["student"]
+            USERS_FILE.write_text(json.dumps(users, indent=2), encoding="utf-8")
+        return users
     except Exception:
-        return {}
+        return default_student
 
 def _save_users(users: dict):
     USERS_FILE.write_text(json.dumps(users, indent=2), encoding="utf-8")
@@ -229,6 +241,72 @@ def generate_clinical_guidance(risk: str, emotion: str, score: int, indicators: 
             "show_emergency_banner": False
         }
 
+# ─── Cognitive Reframing & CBT Solution Engine ─────────────────────────────
+
+def generate_cbt_reframing(text: str, risk: str, emotion: str, indicators: dict) -> dict:
+    """
+    Analyzes the user's specific natural language statement to detect
+    the underlying Cognitive Distortion / Psychological Stressor and
+    synthesizes a CBT-grounded rational reframing & micro-action solution.
+    """
+    text_lower = text.lower()
+    all_ind = [i.lower() for i in indicators.get("all_indicators", [])]
+
+    # 1. Catastrophizing / Negative Self-Labeling (Failure, Crying, Hopeless)
+    if any(k in text_lower for k in ["fail", "failure", "hate myself", "worthless", "useless", "hopeless", "crying", "cry", "ro raha", "rona"]):
+        return {
+            "pattern": "Catastrophizing & Negative Self-Labeling",
+            "insight": "Your mind is currently equating a painful temporary emotional moment with your entire identity. Crying and feeling down under extreme stress is an acute human decompression signal, not evidence of permanent failure.",
+            "reframed_thought": "I am experiencing an intense emotional wave right now, but today's struggle does not define my capability or future. Having a hard day does not make me a failure.",
+            "micro_action": "Splash cool water on your face, pause for 5 minutes without self-criticism, and write down 1 small thing in your control that you can accomplish today."
+        }
+
+    # 2. Somatic Pain & Physical Depletion (Spine, Shoulder, Headache, Pain, Dard)
+    elif any(k in text_lower for k in ["pain", "hurting", "hurt", "headache", "spine", "shoulder", "neck", "ache", "migraine", "dard", "thak", "exhausted"]):
+        return {
+            "pattern": "Somatic Tension & Physical Nervous System Strain",
+            "insight": "Your central nervous system is holding accumulated emotional fatigue physically within your muscles and spine. The body often converts unresolved mental pressure into headaches and physical aches.",
+            "reframed_thought": "My body is not breaking down; it is giving me an honest, valid signal that it has reached physical capacity and requires immediate gentle decompression.",
+            "micro_action": "Do a 2-minute shoulder roll and gentle neck release, drink a full glass of warm water, and step away from all electronic screens for 15 minutes."
+        }
+
+    # 3. Anticipatory Anxiety & Overwhelm (Exam, Deadlines, Panic, Chinta, Ghabrahat)
+    elif any(k in text_lower for k in ["anxious", "anxiety", "exam", "deadline", "panic", "scared", "fear", "chinta", "ghabrahat", "overwhelmed"]):
+        return {
+            "pattern": "Anticipatory Anxiety & Future Over-Projection",
+            "insight": "Your brain is trying to predict and solve multiple future uncertainties simultaneously, triggering an adrenaline and cortisol spike.",
+            "reframed_thought": "I do not need to figure out the next month or week right now. I only need to handle the next 15 minutes. One small focused step is enough.",
+            "micro_action": "Use the 5-4-3-2-1 Grounding method to bring your senses back to the present room, then break your largest task into a 10-minute micro-task."
+        }
+
+    # 4. Emotional Isolation & Alienation (Lonely, Nobody, Akela, Akelapan)
+    elif any(k in text_lower for k in ["lonely", "alone", "isolated", "nobody", "no one", "empty", "akelapan", "akela"]):
+        return {
+            "pattern": "Emotional Tunnel Vision & Perceived Isolation",
+            "insight": "Emotional fatigue creates an illusion that you are uniquely isolated and that reaching out would be burdensome.",
+            "reframed_thought": "Feeling disconnected right now is a temporary emotional state, not a permanent reality. Reaching out is a healthy act of connection.",
+            "micro_action": "Send a simple casual text to a friend or acquaintance (e.g. 'Thinking of you, how have you been?'), or sit in a shared common space."
+        }
+
+    # 5. Default Moderate Strain
+    elif risk == "medium" or (indicators.get("medium_count", 0) >= 1):
+        return {
+            "pattern": "Cumulative Cognitive Overload & Fatigue",
+            "insight": "You are navigating subtle psychological friction and cognitive weariness that needs proactive acknowledgement before turning into burnout.",
+            "reframed_thought": "It is completely normal to feel depleted when juggling multiple responsibilities. Prioritizing rest is productive, not lazy.",
+            "micro_action": "Take 3 deep abdominal breaths, unclench your jaw, lower your shoulders, and give yourself permission to rest tonight."
+        }
+
+    # 6. Positive & Grounded State
+    else:
+        return {
+            "pattern": "Constructive Equilibrium & Emotional Resilience",
+            "insight": "You are actively experiencing clarity, contentment, and adaptive psychological balance.",
+            "reframed_thought": "I recognize and value this sense of calm. I have the inner strength to navigate life's variations with patience and grace.",
+            "micro_action": "Take 30 seconds to anchor this positive feeling in your memory, and share a word of encouragement with someone around you."
+        }
+
+
 # ─── Inference ───────────────────────────────────────────────────────────────
 MAX_LEN = 45
 
@@ -285,6 +363,7 @@ def run_inference(text: str) -> dict:
         )
 
     guidance = generate_clinical_guidance(risk, emotion, score, indicators)
+    cbt_solution = generate_cbt_reframing(text, risk, emotion, indicators)
 
     return dict(
         risk=risk,
@@ -294,6 +373,7 @@ def run_inference(text: str) -> dict:
         probs_emotion=probs_emotion,
         indicators=indicators,
         guidance=guidance,
+        cbt_solution=cbt_solution,
         model_loaded=MODEL_LOADED
     )
 

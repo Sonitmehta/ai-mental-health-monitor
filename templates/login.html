@@ -88,6 +88,14 @@
       </button>
     </form>
 
+    <!-- ── DEMO 1-CLICK ACCESS ──────────────────────── -->
+    <div style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--border); text-align:center;">
+      <span class="text-xs text-muted" style="display:block; margin-bottom:6px;" data-i18n="demo_or">Or test without creating an account:</span>
+      <button type="button" id="btnQuickDemo" class="btn btn-outline btn-sm w-full">
+        ⚡ <span data-i18n="quick_demo_btn">Instant Demo Login (1-Click)</span>
+      </button>
+    </div>
+
   </div>
 </div>
 
@@ -124,6 +132,14 @@ tabSignUp.addEventListener('click', () => {
   signInForm.classList.add('hidden');
   clearError();
 });
+
+// Quick 1-click Demo Login
+document.getElementById('btnQuickDemo').addEventListener('click', async () => {
+  document.getElementById('loginUsername').value = 'student';
+  document.getElementById('loginPassword').value = 'mhm2024';
+  document.getElementById('signInForm').dispatchEvent(new Event('submit'));
+});
+
 
 
 // Sign In Submit

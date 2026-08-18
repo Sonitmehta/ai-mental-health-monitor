@@ -177,8 +177,24 @@ function renderResults(data) {
   // Render Actionable Guidance & Coping steps
   renderGuidance(data.guidance);
 
+  // Render AI Cognitive Reframing Solution
+  renderCBTSolution(data.cbt_solution);
+
   // Render probabilities chart
   renderProbChart(data.probs_risk, data.probs_emotion);
+}
+
+function renderCBTSolution(cbt) {
+  if (!cbt) return;
+  const badgeEl = document.getElementById("cbtPatternBadge");
+  const insightEl = document.getElementById("cbtInsight");
+  const reframedEl = document.getElementById("cbtReframed");
+  const microEl = document.getElementById("cbtMicroAction");
+
+  if (badgeEl) badgeEl.textContent = cbt.pattern || "Cognitive Insight";
+  if (insightEl) insightEl.textContent = cbt.insight || "";
+  if (reframedEl) reframedEl.textContent = `"${cbt.reframed_thought || ""}"`;
+  if (microEl) microEl.textContent = cbt.micro_action || "";
 }
 
 function renderGuidance(guidance) {
