@@ -21,6 +21,20 @@ HIGH_RISK_INDICATORS = [
     "hate myself", "hate my life", "broken inside", "cannot go on", "miserable", "ruined",
     "suffocated", "crying alone", "weeping", "suicidal", "die", "dying", "self harm",
 
+    # Rage, Anger & Acute Frustration (English — signals acute distress)
+    "furious", "enraged", "livid", "raging", "losing it", "i hate everything",
+    "i hate this", "sick of everything", "sick of this", "so done", "done with everything",
+    "screw this", "fed up", "cant take it anymore", "can't take it anymore",
+    "i want to scream", "i'm losing it", "pissed off", "beyond pissed",
+    "everything is ruined", "nothing is working", "nothing works",
+
+    # Abusive Stress Expressions (common Indian internet slang / Hinglish)
+    "bkwas", "bakwas", "bekar", "faltu", "ganda", "bakchodi", "pagal", "hadd ho gyi",
+    "hadd hogayi", "kuch nhi ho rha", "kuch nahi ho raha", "sab bekar", "ye kya hai",
+    "ek kaam dhang se nahi hota", "sab kuch fail", "kuch nahi banta",
+    "ghussa", "gussa", "bahut gussa", "bahut ghussa", "itna gussa",
+    "chillana chahta", "toot gaya", "toot gayi", "toot raha",
+
     # Severe Distress & Somatic Agony (Hinglish / Hindi)
     "marne ka mann", "mar jana chahta", "mar jana chahti", "himmat haar gaya", "himmat haar gayi",
     "kuch theek nahi hoga", "koi fayda nahi", "rona aa rha", "ro raha hu", "ro rahi hu",
@@ -37,7 +51,7 @@ MEDIUM_RISK_INDICATORS = [
     "falling behind", "irritable", "drained", "left out", "gloomy", "headaches", "headache",
     "overthinking", "weary", "melancholy", "dread", "scared", "fear", "insecure", "struggling",
     "struggle", "confused", "lost", "frustrated", "frustrating", "pressure", "exhausting",
-    "insomnia", "sleepless",
+    "insomnia", "sleepless", "angry", "anger", "mad", "upset", "irritated", "annoyed",
 
     # Somatic Distress & Physical Pain Biomarkers
     "hurting", "hurt", "hurts", "pain", "in so much pain", "aching", "ache", "body ache",

@@ -450,6 +450,59 @@ async def about_page(request: Request):
         context={"user": user, "metrics": metrics}
     )
 
+@app.get("/admin", response_class=HTMLResponse)
+async def admin_page(request: Request):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=302)
+    return templates.TemplateResponse(
+        request=request,
+        name="admin.html",
+        context={"user": user}
+    )
+
+@app.get("/api/admin/stats")
+async def admin_stats(request: Request):
+    user = get_current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    users = _load_users()
+    hist_db = _load_user_history()
+
+    user_stats = []
+    for uid, udata in users.items():
+        if uid == "student":
+            continue  # skip demo
+        records = hist_db.get(uid, [])
+        # Compute risk distribution
+        risk_counts = {"low": 0, "medium": 0, "high": 0}
+        for r in records:
+            risk_counts[r.get("risk", "low")] = risk_counts.get(r.get("risk", "low"), 0) + 1
+
+        user_stats.append({
+            "uid": uid,
+            "name": udata.get("name", uid),
+            "email": udata.get("email", ""),
+            "joined": udata.get("created_at", ""),
+            "last_login": udata.get("last_login", "Never"),
+            "total_screenings": len(records),
+            "latest_entry": records[-1].get("text", "") if records else "",
+            "latest_risk": records[-1].get("risk", "") if records else "",
+            "latest_score": records[-1].get("score", 0) if records else 0,
+            "risk_counts": risk_counts
+        })
+
+    # Sort by join date (newest first)
+    user_stats.sort(key=lambda x: x["joined"], reverse=True)
+
+    return JSONResponse({
+        "total_users": len(user_stats),
+        "total_screenings": sum(u["total_screenings"] for u in user_stats),
+        "users": user_stats
+    })
+
+
 # ─── Auth API Endpoints (Sign In & Sign Up) ──────────────────────────────────
 
 class LoginRequest(BaseModel):
@@ -477,6 +530,11 @@ async def api_login(body: LoginRequest):
     
     if not user_record or user_record.get("password_hash") != _hash_pwd(body.password):
         raise HTTPException(status_code=401, detail="Invalid username or password")
+
+    # Track last_login timestamp
+    users = _load_users()
+    users[key]["last_login"] = datetime.now(timezone.utc).isoformat()
+    _save_users(users)
 
     user_name = user_record.get("name", key) if user_record else key
     token = create_token({"sub": key, "name": user_name})
@@ -562,7 +620,65 @@ async def predict(body: PredictRequest, request: Request):
     hist_db[user_key].append(entry)
     _save_user_history(hist_db)
 
+    # ── Auto-Retraining: append anonymised user entry to training CSV and
+    #    trigger background retraining every 15 new real screenings ───────────
+    try:
+        _append_to_training_csv(body.text.strip(), result["risk"], result["emotion"])
+        _maybe_trigger_retrain()
+    except Exception:
+        pass  # never block the response for training ops
+
     return JSONResponse(result)
+
+# ─── Continuous Learning Helpers ─────────────────────────────────────────────
+
+_RETRAIN_LOCK_FILE = DATA_DIR / ".retrain_in_progress"
+_RETRAIN_COUNTER_FILE = DATA_DIR / ".new_entries_count"
+_AUTO_RETRAIN_THRESHOLD = 15  # retrain every 15 new user entries
+
+def _append_to_training_csv(text: str, risk: str, emotion: str):
+    """Append a new anonymised user screening row to the training dataset."""
+    import csv
+    csv_path = DATA_DIR / "sample_dataset.csv"
+    if not csv_path.exists():
+        return
+    # Sanitise: strip personal info, keep content only
+    clean = re.sub(r"\S+@\S+", "[email]", text)
+    clean = re.sub(r"\b\d{10}\b", "[phone]", clean)
+    with open(csv_path, "a", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow([clean, risk, emotion])
+    # Increment counter
+    count = 0
+    if _RETRAIN_COUNTER_FILE.exists():
+        try:
+            count = int(_RETRAIN_COUNTER_FILE.read_text())
+        except Exception:
+            count = 0
+    _RETRAIN_COUNTER_FILE.write_text(str(count + 1))
+
+def _maybe_trigger_retrain():
+    """Launch retraining in background subprocess if threshold is reached."""
+    import subprocess, sys
+    if _RETRAIN_LOCK_FILE.exists():
+        return  # already retraining
+    count = 0
+    if _RETRAIN_COUNTER_FILE.exists():
+        try:
+            count = int(_RETRAIN_COUNTER_FILE.read_text())
+        except Exception:
+            count = 0
+    if count >= _AUTO_RETRAIN_THRESHOLD:
+        _RETRAIN_LOCK_FILE.write_text("1")
+        _RETRAIN_COUNTER_FILE.write_text("0")
+        # Non-blocking background process — server continues normally
+        subprocess.Popen(
+            [sys.executable, str(BASE_DIR / "train_model.py"),
+             "--unlock", str(_RETRAIN_LOCK_FILE)],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            cwd=str(BASE_DIR)
+        )
 
 @app.get("/api/metrics")
 async def get_metrics(request: Request):

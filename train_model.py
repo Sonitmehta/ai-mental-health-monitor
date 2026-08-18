@@ -253,4 +253,15 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--unlock", type=str, default=None, help="Path to lock file to delete after training")
+    args = parser.parse_args()
+    try:
+        main()
+    finally:
+        # Always clean up the lock file even if training fails
+        if args.unlock:
+            lock = Path(args.unlock)
+            if lock.exists():
+                lock.unlink()
