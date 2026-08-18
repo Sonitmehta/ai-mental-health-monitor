@@ -453,8 +453,8 @@ async def about_page(request: Request):
 @app.get("/admin", response_class=HTMLResponse)
 async def admin_page(request: Request):
     user = get_current_user(request)
-    if not user:
-        return RedirectResponse(url="/login", status_code=302)
+    if not user or user.get("sub") != "mehtasonit05":
+        return RedirectResponse(url="/", status_code=302)
     return templates.TemplateResponse(
         request=request,
         name="admin.html",
@@ -464,8 +464,8 @@ async def admin_page(request: Request):
 @app.get("/api/admin/stats")
 async def admin_stats(request: Request):
     user = get_current_user(request)
-    if not user:
-        raise HTTPException(status_code=401, detail="Not authenticated")
+    if not user or user.get("sub") != "mehtasonit05":
+        raise HTTPException(status_code=403, detail="Access denied")
 
     users = _load_users()
     hist_db = _load_user_history()

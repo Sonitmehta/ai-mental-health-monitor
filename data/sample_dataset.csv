@@ -187,3 +187,6 @@ text,emotion,risk
 "Sar me bohot dard hai aur neend nahi aa rahi tension ki wajah se",anxious,medium
 "Aaj ka din bohot badhiya tha dosto ke sath khoob maza aaya",positive,low
 "Sab kuch bohot overwhelming lag raha hai aur chest me tightness feel ho rahi hai",anxious,medium
+"I have an upcoming exam and I'm stressed about failing, struggling to sleep properly.",high,neutral
+"i felt very bad today, i was crying at a time too and i don't know what to do, i think i'm a failure",high,sad
+I had a really productive day and enjoyed hanging out with my friends in the evening!,low,positive
