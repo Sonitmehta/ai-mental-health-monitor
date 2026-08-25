@@ -45,25 +45,13 @@ def _hash_pwd(pwd: str) -> str:
     return hashlib.sha256(pwd.encode("utf-8")).hexdigest()
 
 def _load_users() -> dict:
-    default_student = {
-        "student": {
-            "name": "Student",
-            "email": "student@mhm.ai",
-            "password_hash": _hash_pwd("mhm2024"),
-            "created_at": datetime.now(timezone.utc).isoformat()
-        }
-    }
     if not USERS_FILE.exists():
-        USERS_FILE.write_text(json.dumps(default_student, indent=2), encoding="utf-8")
-        return default_student
+        USERS_FILE.write_text(json.dumps({}, indent=2), encoding="utf-8")
+        return {}
     try:
-        users = json.loads(USERS_FILE.read_text(encoding="utf-8"))
-        if "student" not in users:
-            users["student"] = default_student["student"]
-            USERS_FILE.write_text(json.dumps(users, indent=2), encoding="utf-8")
-        return users
+        return json.loads(USERS_FILE.read_text(encoding="utf-8"))
     except Exception:
-        return default_student
+        return {}
 
 def _save_users(users: dict):
     USERS_FILE.write_text(json.dumps(users, indent=2), encoding="utf-8")
@@ -518,8 +506,8 @@ class SignUpRequest(BaseModel):
 async def api_login(body: LoginRequest):
     users = _load_users()
     key = body.username.strip().lower()
-    
-    # Match by key or by email
+
+    # Match by internal key OR by registered email
     user_record = users.get(key)
     if not user_record:
         for u_id, u_data in users.items():
@@ -527,24 +515,25 @@ async def api_login(body: LoginRequest):
                 user_record = u_data
                 key = u_id
                 break
-    
-    if not user_record or user_record.get("password_hash") != _hash_pwd(body.password):
+
+    # FIX: strip password before hashing (same as signup)
+    if not user_record or user_record.get("password_hash") != _hash_pwd(body.password.strip()):
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
     # Track last_login timestamp
-    users = _load_users()
     users[key]["last_login"] = datetime.now(timezone.utc).isoformat()
     _save_users(users)
 
-    user_name = user_record.get("name", key) if user_record else key
+    user_name = user_record.get("name", key)
     token = create_token({"sub": key, "name": user_name})
-    
+
     response = JSONResponse({"success": True, "token": token, "user": key, "name": user_name})
     response.set_cookie(
         "mhm_token", token,
         httponly=True, max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60, samesite="lax"
     )
     return response
+
 
 @app.post("/api/signup")
 async def api_signup(body: SignUpRequest):
@@ -587,7 +576,135 @@ async def api_signup(body: SignUpRequest):
     )
     return response
 
+# ─── Forgot Password / Username — OTP Email Flow ─────────────────────────────
+import random, smtplib
+from email.mime.text import MIMEText
+
+# In-memory OTP store: { email: {otp, expires_at} }
+_otp_store: dict = {}
+
+SMTP_SENDER = os.environ.get("SMTP_SENDER", "")          # your gmail
+SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")       # gmail app password
+
+def _send_otp_email(to_email: str, otp: str, username: str) -> bool:
+    """Send OTP via Gmail SMTP or fallback to console log. Returns True on success."""
+    print(f"\n==================================================")
+    print(f"[ACCOUNT RECOVERY] Verification Code for {to_email}: {otp}")
+    print(f"[ACCOUNT RECOVERY] Associated Username: {username}")
+    print(f"==================================================\n")
+
+    if not SMTP_SENDER or not SMTP_PASSWORD:
+        # Development / Fallback mode: logged to server console
+        return True
+
+    body = f"""Hello,
+
+You requested a password reset / username reminder for your MindScan AI account.
+
+Your one-time verification code is:
+
+  {otp}
+
+This code expires in 10 minutes.
+
+Your username is: {username}
+
+If you did not request this, please ignore this email.
+
+— MindScan AI Team
+"""
+    msg = MIMEText(body)
+    msg["Subject"] = f"MindScan AI — Your Verification Code: {otp}"
+    msg["From"] = SMTP_SENDER
+    msg["To"] = to_email
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=10) as server:
+            server.login(SMTP_SENDER, SMTP_PASSWORD)
+            server.sendmail(SMTP_SENDER, to_email, msg.as_string())
+        return True
+    except Exception as e:
+        print(f"[EMAIL ERROR] {e} (Code {otp} logged to console)")
+        return True
+
+class ForgotRequest(BaseModel):
+    email: str
+
+class VerifyOTPRequest(BaseModel):
+    email: str
+    otp: str
+
+class ResetPasswordRequest(BaseModel):
+    email: str
+    otp: str
+    new_password: str
+
+@app.post("/api/forgot-password")
+async def forgot_password(body: ForgotRequest):
+    email = body.email.strip().lower()
+    users = _load_users()
+
+    # Find user by email
+    matched_uid = None
+    for uid, udata in users.items():
+        if udata.get("email", "").lower() == email:
+            matched_uid = uid
+            break
+
+    if not matched_uid:
+        # Don't reveal if email exists — generic message
+        return JSONResponse({"success": True, "message": "If this email is registered, a code has been sent."})
+
+    # Generate 6-digit OTP
+    otp = str(random.randint(100000, 999999))
+    expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
+    _otp_store[email] = {"otp": otp, "expires_at": expires_at, "uid": matched_uid}
+
+    sent = _send_otp_email(email, otp, matched_uid)
+    if not sent:
+        raise HTTPException(status_code=500, detail="Email sending failed. Please ensure SMTP is configured.")
+
+    return JSONResponse({"success": True, "message": "Verification code sent to your email."})
+
+@app.post("/api/verify-otp")
+async def verify_otp(body: VerifyOTPRequest):
+    email = body.email.strip().lower()
+    record = _otp_store.get(email)
+
+    if not record:
+        raise HTTPException(status_code=400, detail="No code requested for this email. Please request again.")
+    if datetime.now(timezone.utc) > record["expires_at"]:
+        _otp_store.pop(email, None)
+        raise HTTPException(status_code=400, detail="Code expired. Please request a new one.")
+    if record["otp"] != body.otp.strip():
+        raise HTTPException(status_code=400, detail="Invalid code. Please check and try again.")
+
+    return JSONResponse({"success": True, "username": record["uid"]})
+
+@app.post("/api/reset-password")
+async def reset_password(body: ResetPasswordRequest):
+    email = body.email.strip().lower()
+    record = _otp_store.get(email)
+
+    if not record:
+        raise HTTPException(status_code=400, detail="Session expired. Please request a new code.")
+    if datetime.now(timezone.utc) > record["expires_at"]:
+        _otp_store.pop(email, None)
+        raise HTTPException(status_code=400, detail="Code expired. Please request a new code.")
+    if record["otp"] != body.otp.strip():
+        raise HTTPException(status_code=400, detail="Invalid code.")
+    if len(body.new_password.strip()) < 5:
+        raise HTTPException(status_code=400, detail="Password must be at least 5 characters.")
+
+    uid = record["uid"]
+    users = _load_users()
+    users[uid]["password_hash"] = _hash_pwd(body.new_password.strip())
+    _save_users(users)
+    _otp_store.pop(email, None)
+
+    return JSONResponse({"success": True, "message": "Password updated successfully. You can now sign in."})
+
 # ─── ML & History API Endpoints ──────────────────────────────────────────────
+
 
 class PredictRequest(BaseModel):
     text: str
